@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Header from '@/components/Header';
 import ProductCard from '@/components/ProductCard';
@@ -11,6 +11,7 @@ interface Product {
   price: number;
   salePrice?: number;
   discountPercent?: number;
+  courierCharges?: number; // 🔧 NEW FIELD
   imageUrl: string;
   inStock: boolean;
   isFeatured: boolean;
