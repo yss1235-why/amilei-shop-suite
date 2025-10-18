@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { auth } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { signOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, LogOut, LayoutDashboard, Package, Settings, AlertTriangle } from 'lucide-react';
+import { Loader2, LogOut, LayoutDashboard, Package, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+
+// 🔧 Get admin email from environment variable
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,8 +16,6 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [user, loading] = useAuthState(auth);
-  const [subscriptionExpiry, setSubscriptionExpiry] = useState<Date | null>(null);
-  const [showWarning, setShowWarning] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,39 +26,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         return;
       }
 
-      if (user) {
-        try {
-          const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-          
-          if (!adminDoc.exists()) {
-            toast.error('Unauthorized access');
-            await signOut(auth);
-            navigate('/admin');
-            return;
-          }
-
-          const adminData = adminDoc.data();
-          const expiry = adminData.subscriptionExpiry?.toDate();
-          setSubscriptionExpiry(expiry);
-
-          const now = new Date();
-          if (expiry < now) {
-            toast.error('Subscription expired');
-            await signOut(auth);
-            navigate('/admin');
-            return;
-          }
-
-          // Show warning if expiring within 7 days
-          const daysUntilExpiry = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          if (daysUntilExpiry <= 7) {
-            setShowWarning(true);
-          }
-        } catch (error) {
-          console.error('Error checking admin:', error);
-          toast.error('Failed to verify access');
-          navigate('/admin');
-        }
+      if (user && user.email !== ADMIN_EMAIL) {
+        toast.error('Unauthorized access');
+        await signOut(auth);
+        navigate('/admin');
+        return;
       }
     };
 
@@ -93,16 +64,6 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Warning Banner */}
-      {showWarning && subscriptionExpiry && (
-        <Alert className="rounded-none border-x-0 border-t-0 bg-destructive/10 border-destructive/50">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Your subscription expires on {subscriptionExpiry.toLocaleDateString()}. Please renew to continue accessing admin features.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
