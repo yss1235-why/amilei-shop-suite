@@ -26,6 +26,7 @@ const AdminProductForm = () => {
     salePrice: '',
     imageUrl: '',
     stockCount: '',
+    courierCharges: '', // 🔧 NEW FIELD
     inStock: true,
     isFeatured: false
   });
@@ -44,6 +45,7 @@ const AdminProductForm = () => {
               salePrice: data.salePrice?.toString() || '',
               imageUrl: data.imageUrl || '',
               stockCount: data.stockCount?.toString() || '',
+              courierCharges: data.courierCharges?.toString() || '', // 🔧 NEW FIELD
               inStock: data.inStock ?? true,
               isFeatured: data.isFeatured ?? false
             });
@@ -76,6 +78,7 @@ const AdminProductForm = () => {
       const price = parseFloat(formData.price);
       const salePrice = formData.salePrice ? parseFloat(formData.salePrice) : undefined;
       const stockCount = parseInt(formData.stockCount);
+      const courierCharges = formData.courierCharges ? parseFloat(formData.courierCharges) : undefined; // 🔧 NEW FIELD
 
       // Calculate discount percentage
       let discountPercent = 0;
@@ -91,6 +94,7 @@ const AdminProductForm = () => {
         discountPercent,
         imageUrl: formData.imageUrl.trim(),
         stockCount,
+        courierCharges, // 🔧 NEW FIELD (optional)
         inStock: formData.inStock,
         isFeatured: formData.isFeatured
       };
@@ -184,18 +188,39 @@ const AdminProductForm = () => {
                 </div>
               </div>
 
-              {/* Stock Count */}
-              <div className="space-y-2">
-                <Label htmlFor="stockCount">Stock Quantity *</Label>
-                <Input
-                  id="stockCount"
-                  type="number"
-                  min="0"
-                  value={formData.stockCount}
-                  onChange={(e) => setFormData({ ...formData, stockCount: e.target.value })}
-                  placeholder="0"
-                  required
-                />
+              {/* Stock Count & Courier Charges */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stockCount">Stock Quantity *</Label>
+                  <Input
+                    id="stockCount"
+                    type="number"
+                    min="0"
+                    value={formData.stockCount}
+                    onChange={(e) => setFormData({ ...formData, stockCount: e.target.value })}
+                    placeholder="0"
+                    required
+                  />
+                </div>
+                {/* 🔧 NEW FIELD */}
+                <div className="space-y-2">
+                  <Label htmlFor="courierCharges">
+                    Courier Charges (₹)
+                    <span className="text-xs text-muted-foreground ml-1">(Optional)</span>
+                  </Label>
+                  <Input
+                    id="courierCharges"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={formData.courierCharges}
+                    onChange={(e) => setFormData({ ...formData, courierCharges: e.target.value })}
+                    placeholder="Default store rate"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty to use default store courier charges
+                  </p>
+                </div>
               </div>
 
               {/* Image Upload */}
