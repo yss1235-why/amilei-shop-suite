@@ -11,6 +11,7 @@ interface ProductCardProps {
   price: number;
   salePrice?: number;
   discountPercent?: number;
+  courierCharges?: number; // 🔧 NEW FIELD
   imageUrl: string;
   inStock: boolean;
   isFeatured?: boolean;
@@ -22,6 +23,7 @@ const ProductCard = ({
   price,
   salePrice,
   discountPercent,
+  courierCharges, // 🔧 NEW FIELD
   imageUrl,
   inStock,
   isFeatured
@@ -39,7 +41,8 @@ const ProductCard = ({
       name,
       imageUrl,
       price,
-      salePrice
+      salePrice,
+      courierCharges // 🔧 NEW FIELD
     }, 1);
     
     toast.success('Added to cart!');
