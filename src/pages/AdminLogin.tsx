@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { auth } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
+
+// 🔧 Get admin email from environment variable
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 const AdminLogin = () => {
   const [user, loading] = useAuthState(auth);
@@ -16,30 +18,14 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       if (user) {
-        try {
-          const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-          
-          if (!adminDoc.exists()) {
-            toast.error('You are not authorized as an admin');
-            await auth.signOut();
-            return;
-          }
-
-          const adminData = adminDoc.data();
-          const subscriptionExpiry = adminData.subscriptionExpiry?.toDate();
-          const now = new Date();
-
-          if (subscriptionExpiry < now) {
-            toast.error('Your subscription has expired. Please renew to continue.');
-            await auth.signOut();
-            return;
-          }
-
-          navigate('/admin/dashboard');
-        } catch (error) {
-          console.error('Error checking admin:', error);
-          toast.error('Failed to verify admin status');
+        // Check if logged-in user is the admin
+        if (user.email !== ADMIN_EMAIL) {
+          toast.error('You are not authorized as an admin');
+          await auth.signOut();
+          return;
         }
+
+        navigate('/admin/dashboard');
       }
     };
 
@@ -51,21 +37,9 @@ const AdminLogin = () => {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       
-      // Check if user is admin
-      const adminDoc = await getDoc(doc(db, 'admins', result.user.uid));
-      
-      if (!adminDoc.exists()) {
+      // Check if user is the admin
+      if (result.user.email !== ADMIN_EMAIL) {
         toast.error('You are not authorized as an admin');
-        await auth.signOut();
-        return;
-      }
-
-      const adminData = adminDoc.data();
-      const subscriptionExpiry = adminData.subscriptionExpiry?.toDate();
-      const now = new Date();
-
-      if (subscriptionExpiry < now) {
-        toast.error('Your subscription has expired. Please renew to continue.');
         await auth.signOut();
         return;
       }
