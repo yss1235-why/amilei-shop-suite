@@ -4,6 +4,7 @@ export interface CartItem {
   imageUrl: string;
   price: number;
   salePrice?: number;
+  courierCharges?: number; // 🔧 NEW FIELD
   quantity: number;
 }
 
@@ -55,10 +56,12 @@ export const clearCart = (): void => {
   localStorage.removeItem(CART_KEY);
 };
 
-export const getCartTotal = (courierCharges: number, freeShippingThreshold: number): {
+// 🔧 UPDATED CALCULATION
+export const getCartTotal = (defaultCourierCharges: number, freeShippingThreshold: number): {
   subtotal: number;
   courier: number;
   total: number;
+  courierBreakdown: { productName: string; charge: number }[];
 } => {
   const cart = getCart();
   const subtotal = cart.reduce((sum, item) => {
@@ -66,10 +69,32 @@ export const getCartTotal = (courierCharges: number, freeShippingThreshold: numb
     return sum + (price * item.quantity);
   }, 0);
   
-  const courier = subtotal >= freeShippingThreshold ? 0 : courierCharges;
-  const total = subtotal + courier;
+  // Calculate total courier charges
+  let totalCourierCharges = 0;
+  const courierBreakdown: { productName: string; charge: number }[] = [];
   
-  return { subtotal, courier, total };
+  if (subtotal < freeShippingThreshold) {
+    cart.forEach(item => {
+      // Use product-specific courier charge or default
+      const charge = item.courierCharges !== undefined ? item.courierCharges : defaultCourierCharges;
+      const itemCourierCharge = charge * item.quantity;
+      
+      totalCourierCharges += itemCourierCharge;
+      courierBreakdown.push({
+        productName: item.name,
+        charge: itemCourierCharge
+      });
+    });
+  }
+  
+  const total = subtotal + totalCourierCharges;
+  
+  return { 
+    subtotal, 
+    courier: totalCourierCharges, 
+    total,
+    courierBreakdown 
+  };
 };
 
 export const formatCurrency = (amount: number): string => {
