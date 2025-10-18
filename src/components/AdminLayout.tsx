@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { auth } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -7,8 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Loader2, LogOut, LayoutDashboard, Package, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 
-// 🔧 Get admin email from environment variable
+// Get admin email from environment variable
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+
+// Validate admin email is configured
+if (!ADMIN_EMAIL || ADMIN_EMAIL === 'your-admin-email@gmail.com') {
+  console.error('⚠️ ADMIN EMAIL NOT CONFIGURED! Please set VITE_ADMIN_EMAIL in your .env file');
+}
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -16,21 +21,33 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [user, loading] = useAuthState(auth);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!loading && !user) {
-        navigate('/admin');
-        return;
-      }
+      console.log('🔍 Checking admin access...');
+      console.log('User:', user?.email);
+      console.log('Admin Email:', ADMIN_EMAIL);
+      
+      if (!loading) {
+        if (!user) {
+          console.log('❌ No user logged in, redirecting to login');
+          navigate('/admin');
+          return;
+        }
 
-      if (user && user.email !== ADMIN_EMAIL) {
-        toast.error('Unauthorized access');
-        await signOut(auth);
-        navigate('/admin');
-        return;
+        if (user.email !== ADMIN_EMAIL) {
+          console.log('❌ Unauthorized: User email does not match admin email');
+          toast.error('Unauthorized access - not an admin');
+          await signOut(auth);
+          navigate('/admin');
+          return;
+        }
+
+        console.log('✅ Admin access granted');
+        setIsCheckingAuth(false);
       }
     };
 
@@ -48,7 +65,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     }
   };
 
-  if (loading) {
+  if (loading || isCheckingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
@@ -94,10 +111,15 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             })}
           </nav>
 
-          <Button onClick={handleLogout} variant="ghost" size="sm">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground hidden sm:block">
+              {user?.email}
+            </span>
+            <Button onClick={handleLogout} variant="ghost" size="sm">
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
