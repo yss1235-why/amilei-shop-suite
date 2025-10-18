@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import AdminLayout from '@/components/AdminLayout';
+import CloudinaryUpload from '@/components/CloudinaryUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2, Upload } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AdminProductForm = () => {
@@ -55,6 +56,11 @@ const AdminProductForm = () => {
       fetchProduct();
     }
   }, [isEdit, id]);
+
+  const handleImageUpload = (url: string) => {
+    setFormData({ ...formData, imageUrl: url });
+    toast.success('Image uploaded successfully');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,11 +110,6 @@ const AdminProductForm = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleImageUpload = () => {
-    // Placeholder for Cloudinary integration
-    toast.info('Cloudinary integration needed. For now, paste an image URL.');
   };
 
   return (
@@ -197,33 +198,13 @@ const AdminProductForm = () => {
                 />
               </div>
 
-              {/* Image URL */}
+              {/* Image Upload */}
               <div className="space-y-2">
-                <Label htmlFor="imageUrl">Image URL *</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                    required
-                  />
-                  <Button type="button" onClick={handleImageUpload} variant="outline">
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                </div>
-                {formData.imageUrl && (
-                  <div className="mt-2 relative aspect-square w-32 rounded-md overflow-hidden bg-secondary">
-                    <img
-                      src={formData.imageUrl}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/300?text=Invalid+Image';
-                      }}
-                    />
-                  </div>
-                )}
+                <Label>Product Image *</Label>
+                <CloudinaryUpload
+                  onUpload={handleImageUpload}
+                  currentImage={formData.imageUrl}
+                />
               </div>
 
               {/* Switches */}
