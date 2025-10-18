@@ -64,7 +64,7 @@ const Cart = () => {
     }
 
     try {
-      const { subtotal, courier, total } = getCartTotal(courierCharges, freeShippingThreshold);
+      const { subtotal, courier, total, courierBreakdown } = getCartTotal(courierCharges, freeShippingThreshold);
       const orderId = `ORD-${Date.now()}`;
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
@@ -74,6 +74,7 @@ const Cart = () => {
         items: cart,
         subtotal,
         courierCharges: courier,
+        courierBreakdown, // 🔧 Store breakdown
         total,
         createdAt: new Date(),
         expiresAt
@@ -95,7 +96,7 @@ const Cart = () => {
     }
   };
 
-  const { subtotal, courier, total } = getCartTotal(courierCharges, freeShippingThreshold);
+  const { subtotal, courier, total, courierBreakdown } = getCartTotal(courierCharges, freeShippingThreshold);
 
   if (cart.length === 0) {
     return (
@@ -195,15 +196,30 @@ const Cart = () => {
                     <span className="font-semibold">{formatCurrency(subtotal)}</span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Courier Charges</span>
-                    <span className="font-semibold">
-                      {courier === 0 ? (
-                        <span className="text-green-600">FREE</span>
-                      ) : (
-                        formatCurrency(courier)
-                      )}
-                    </span>
+                  {/* 🔧 UPDATED COURIER DISPLAY */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Courier Charges</span>
+                      <span className="font-semibold">
+                        {courier === 0 ? (
+                          <span className="text-green-600">FREE</span>
+                        ) : (
+                          formatCurrency(courier)
+                        )}
+                      </span>
+                    </div>
+                    
+                    {/* Show breakdown if there are charges */}
+                    {courier > 0 && courierBreakdown.length > 0 && (
+                      <div className="text-xs text-muted-foreground pl-4 space-y-1">
+                        {courierBreakdown.map((item, index) => (
+                          <div key={index} className="flex justify-between">
+                            <span className="truncate max-w-[150px]">{item.productName}</span>
+                            <span>{formatCurrency(item.charge)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
                   {subtotal < freeShippingThreshold && (
