@@ -26,16 +26,16 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+   <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-pink-500 via-pink-400 to-pink-500 backdrop-blur shadow-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center space-x-2">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+         <h1 className="text-2xl font-bold text-white drop-shadow-md">
             Amilei eCollection
           </h1>
         </Link>
         
         <Link to="/cart">
-          <Button variant="ghost" size="icon" className="relative">
+         <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/20">
             <ShoppingCart className="h-5 w-5" />
             {cartCount > 0 && (
               <Badge 
