@@ -11,8 +11,9 @@ interface Product {
   price: number;
   salePrice?: number;
   discountPercent?: number;
-  courierCharges?: number; // 🔧 NEW FIELD
-  imageUrl: string;
+  courierCharges?: number;
+  images: string[];
+  imageUrl?: string; // Backward compatibility
   inStock: boolean;
   isFeatured: boolean;
 }
@@ -22,15 +23,21 @@ const Index = () => {
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchProducts = async () => {
       try {
         const productsRef = collection(db, 'products');
         const snapshot = await getDocs(productsRef);
-        const productsList = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Product[];
+        const productsList = snapshot.docs.map(doc => {
+          const data = doc.data();
+          // Handle backward compatibility
+          const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
+          return {
+            id: doc.id,
+            ...data,
+            images
+          };
+        }) as Product[];
         
         const featured = productsList.find(p => p.isFeatured);
         const regular = productsList.filter(p => !p.isFeatured);
