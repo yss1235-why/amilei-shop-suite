@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { Loader2 } from 'lucide-react';
 
@@ -55,9 +56,9 @@ const Index = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
+   return (
+  <div className="min-h-screen bg-background flex flex-col">
+    <Header />
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
@@ -109,7 +110,8 @@ const Index = () => {
             </div>
           )}
         </section>
-      </main>
+    </main>
+      <Footer />
     </div>
   );
 };
