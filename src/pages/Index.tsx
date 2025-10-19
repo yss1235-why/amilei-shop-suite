@@ -14,8 +14,9 @@ interface Product {
   discountPercent?: number;
   courierCharges?: number;
   images: string[];
-  imageUrl?: string; // Backward compatibility
+  imageUrl?: string;
   inStock: boolean;
+  stockCount: number; // 🔧 NEW FIELD
   isFeatured: boolean;
 }
 
@@ -100,7 +101,7 @@ const Index = () => {
           <h2 className="text-2xl font-bold mb-6 text-foreground">All Products</h2>
           {products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {products.map(product => (
+             {products.map(product => (
                 <ProductCard key={product.id} {...product} />
               ))}
             </div>
