@@ -31,7 +31,6 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
    useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
