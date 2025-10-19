@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -99,9 +100,9 @@ const Cart = () => {
   const { subtotal, courier, total, courierBreakdown } = getCartTotal(courierCharges, freeShippingThreshold);
 
   if (cart.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
+   return (
+  <div className="min-h-screen bg-background flex flex-col">
+    <Header />
         <div className="container mx-auto px-4 py-16">
           <Card className="max-w-md mx-auto text-center py-12">
             <CardContent>
@@ -118,9 +119,9 @@ const Cart = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
+ return (
+  <div className="min-h-screen bg-background flex flex-col">
+    <Header />
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
@@ -251,9 +252,9 @@ const Cart = () => {
             </Card>
           </div>
         </div>
-      </main>
+    </main>
+      <Footer />
     </div>
   );
 };
-
 export default Cart;
