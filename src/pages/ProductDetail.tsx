@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import ImageCarousel from '@/components/ImageCarousel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -79,9 +80,9 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
+   return (
+  <div className="min-h-screen bg-background flex flex-col">
+    <Header />
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
@@ -196,7 +197,8 @@ const ProductDetail = () => {
             </Button>
           </div>
         </div>
-      </main>
+    </main>
+      <Footer />
     </div>
   );
 };
