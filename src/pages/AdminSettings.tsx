@@ -13,8 +13,8 @@ import { toast } from 'sonner';
 const AdminSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    storeName: 'Amilei',
+ const [formData, setFormData] = useState({
+    storeName: 'Amilei eCollection',
     whatsappNumber: '',
     courierCharges: '100',
     freeShippingThreshold: '2000',
@@ -27,8 +27,8 @@ const AdminSettings = () => {
         const settingsDoc = await getDoc(doc(db, 'settings', 'store'));
         if (settingsDoc.exists()) {
           const data = settingsDoc.data();
-          setFormData({
-            storeName: data.storeName || 'Amilei',
+         setFormData({
+            storeName: data.storeName || 'Amilei eCollection',
             whatsappNumber: data.whatsappNumber || '',
             courierCharges: data.courierCharges?.toString() || '100',
             freeShippingThreshold: data.freeShippingThreshold?.toString() || '2000',
@@ -101,7 +101,7 @@ const AdminSettings = () => {
                   id="storeName"
                   value={formData.storeName}
                   onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
-                  placeholder="Amilei"
+                 placeholder="Amilei eCollection"
                   required
                 />
               </div>
