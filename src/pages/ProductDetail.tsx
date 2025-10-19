@@ -58,7 +58,7 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id, navigate]);
 
-   const handleAddToCart = () => {
+ const handleAddToCart = () => {
     if (!product || !id) return;
     
     if (!product.inStock) {
@@ -69,10 +69,11 @@ const ProductDetail = () => {
     addToCart({
       productId: id,
       name: product.name,
-      imageUrl: product.images[0], // Use first image
+      imageUrl: product.images[0],
       price: product.price,
       salePrice: product.salePrice,
-      courierCharges: product.courierCharges
+      courierCharges: product.courierCharges,
+      stockCount: product.stockCount // 🔧 Pass stock count
     }, quantity);
     
     toast.success(`Added ${quantity} item(s) to cart!`);
