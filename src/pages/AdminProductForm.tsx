@@ -19,33 +19,36 @@ const AdminProductForm = () => {
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     salePrice: '',
-    imageUrl: '',
+    images: [] as string[],
     stockCount: '',
-    courierCharges: '', // 🔧 NEW FIELD
+    courierCharges: '',
     inStock: true,
     isFeatured: false
   });
 
-  useEffect(() => {
+ useEffect(() => {
     if (isEdit && id) {
       const fetchProduct = async () => {
         try {
           const productDoc = await getDoc(doc(db, 'products', id));
           if (productDoc.exists()) {
             const data = productDoc.data();
+            // Handle backward compatibility
+            const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
+            
             setFormData({
               name: data.name || '',
               description: data.description || '',
               price: data.price?.toString() || '',
               salePrice: data.salePrice?.toString() || '',
-              imageUrl: data.imageUrl || '',
+              images: images,
               stockCount: data.stockCount?.toString() || '',
-              courierCharges: data.courierCharges?.toString() || '', // 🔧 NEW FIELD
+              courierCharges: data.courierCharges?.toString() || '',
               inStock: data.inStock ?? true,
               isFeatured: data.isFeatured ?? false
             });
@@ -58,20 +61,28 @@ const AdminProductForm = () => {
       fetchProduct();
     }
   }, [isEdit, id]);
+ const handleImageUpload = (urls: string[]) => {
+    setFormData({ ...formData, images: urls });
+    toast.success('Images uploaded successfully');
+  };
 
-  const handleImageUpload = (url: string) => {
-    setFormData({ ...formData, imageUrl: url });
-    toast.success('Image uploaded successfully');
+  const handleImageReorder = (images: string[]) => {
+    setFormData({ ...formData, images });
+  };
+
+  const handleImageDelete = (index: number) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData({ ...formData, images: newImages });
+    toast.success('Image removed');
   };
 
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.price || !formData.imageUrl || !formData.stockCount) {
-      toast.error('Please fill in all required fields');
+    if (!formData.name || !formData.price || formData.images.length === 0 || !formData.stockCount) {
+      toast.error('Please fill in all required fields including at least one image');
       return;
     }
-
     setLoading(true);
 
     try {
@@ -89,15 +100,15 @@ const handleSubmit = async (e: React.FormEvent) => {
         discountPercent = Math.round(((price - salePrice) / price) * 100);
       }
 
-      const productData = {
+   const productData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price,
         salePrice,
         discountPercent,
-        imageUrl: formData.imageUrl.trim(),
+        images: formData.images,
         stockCount,
-        courierCharges, // 🔧 NEW FIELD (optional)
+        courierCharges,
         inStock: formData.inStock,
         isFeatured: formData.isFeatured
       };
@@ -226,12 +237,14 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
               </div>
 
-              {/* Image Upload */}
+            {/* Image Upload */}
               <div className="space-y-2">
-                <Label>Product Image *</Label>
+                <Label>Product Images * (Up to 5 images)</Label>
                 <CloudinaryUpload
                   onUpload={handleImageUpload}
-                  currentImage={formData.imageUrl}
+                  currentImages={formData.images}
+                  onReorder={handleImageReorder}
+                  onDelete={handleImageDelete}
                 />
               </div>
 
