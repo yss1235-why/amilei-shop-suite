@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Package, MessageCircle } from 'lucide-react';
+import { Loader2, Package, MessageCircle, FileText } from 'lucide-react';
 import { formatCurrency } from '@/lib/cart';
+import { generateInvoice } from '@/lib/invoiceGenerator';
 import { toast } from 'sonner';
-
 interface OrderItem {
   productId: string;
   name: string;
@@ -30,9 +31,23 @@ interface Order {
 
 const Order = () => {
   const { orderId } = useParams<{ orderId: string }>();
+  const navigate = useNavigate();
+  const [user] = useAuthState(auth);
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [storeName, setStoreName] = useState('Amilei eCollection');
+  const [isAdmin, setIsAdmin] = useState(false);
+
+useEffect(() => {
+    const checkAdmin = async () => {
+      if (user) {
+        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+        setIsAdmin(user.email === adminEmail);
+      }
+    };
+    checkAdmin();
+  }, [user]);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -49,11 +64,12 @@ const Order = () => {
           toast.error('Order not found');
         }
 
-        // Fetch settings for WhatsApp
-        const settingsSnapshot = await getDocs(collection(db, 'settings'));
-        if (!settingsSnapshot.empty) {
-          const settings = settingsSnapshot.docs[0].data();
+      // Fetch settings for WhatsApp and Store Name
+        const settingsDoc = await getDoc(doc(db, 'settings', 'store'));
+        if (settingsDoc.exists()) {
+          const settings = settingsDoc.data();
           setWhatsappNumber(settings.whatsappNumber || '');
+          setStoreName(settings.storeName || 'Amilei eCollection');
         }
       } catch (error) {
         console.error('Error fetching order:', error);
@@ -72,6 +88,27 @@ const Order = () => {
     const message = `Hi! I have a question about my order:\n\nOrder ID: ${order.orderId}\nTotal: ${formatCurrency(order.total)}\n\nPlease assist me.`;
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleGenerateInvoice = () => {
+    if (!order) return;
+
+    try {
+      generateInvoice({
+        orderId: order.orderId,
+        items: order.items,
+        subtotal: order.subtotal,
+        courierCharges: order.courierCharges,
+        total: order.total,
+        createdAt: order.createdAt,
+        storeName,
+        whatsappNumber
+      });
+      toast.success('Invoice generated successfully!');
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      toast.error('Failed to generate invoice');
+    }
   };
 
   if (loading) {
@@ -170,16 +207,29 @@ const Order = () => {
               </p>
             </div>
 
-            {/* Contact Seller Button */}
-            {whatsappNumber && (
+           {/* Action Buttons - Show different buttons for Admin vs User */}
+            {isAdmin ? (
+              // Admin View: Generate Invoice Button
               <Button
-                onClick={handleContactSeller}
+                onClick={handleGenerateInvoice}
                 className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent"
                 size="lg"
               >
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Contact Seller
+                <FileText className="mr-2 h-5 w-5" />
+                Generate Invoice (PDF)
               </Button>
+            ) : (
+              // User View: Contact Seller Button
+              whatsappNumber && (
+                <Button
+                  onClick={handleContactSeller}
+                  className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent"
+                  size="lg"
+                >
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  Contact Seller
+                </Button>
+              )
             )}
           </CardContent>
         </Card>
