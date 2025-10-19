@@ -4,10 +4,10 @@ export interface CartItem {
   imageUrl: string;
   price: number;
   salePrice?: number;
-  courierCharges?: number; // 🔧 NEW FIELD
+  courierCharges?: number;
+  stockCount: number; // 🔧 NEW FIELD - Track available stock
   quantity: number;
 }
-
 const CART_KEY = 'amilei_cart';
 
 export const getCart = (): CartItem[] => {
@@ -24,9 +24,14 @@ export const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1
   const existingItem = cart.find(i => i.productId === item.productId);
   
   if (existingItem) {
-    existingItem.quantity += quantity;
+    // Don't exceed stock limit
+    const newQuantity = Math.min(existingItem.quantity + quantity, item.stockCount);
+    existingItem.quantity = newQuantity;
+    existingItem.stockCount = item.stockCount; // Update stock info
   } else {
-    cart.push({ ...item, quantity });
+    // Ensure initial quantity doesn't exceed stock
+    const validQuantity = Math.min(quantity, item.stockCount);
+    cart.push({ ...item, quantity: validQuantity });
   }
   
   saveCart(cart);
@@ -40,7 +45,8 @@ export const updateCartItemQuantity = (productId: string, quantity: number): voi
     if (quantity <= 0) {
       removeFromCart(productId);
     } else {
-      item.quantity = quantity;
+      // 🔧 Enforce stock limit
+      item.quantity = Math.min(quantity, item.stockCount);
       saveCart(cart);
     }
   }
