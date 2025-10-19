@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { db, auth } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -113,8 +114,8 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+  <div className="min-h-screen bg-background flex flex-col">
+    <Header />
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
@@ -123,9 +124,9 @@ useEffect(() => {
   }
 
   if (!order) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
+   return (
+  <div className="min-h-screen bg-background flex flex-col">
+    <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h1 className="text-2xl font-bold mb-2">Order Not Found</h1>
@@ -233,7 +234,8 @@ useEffect(() => {
             )}
           </CardContent>
         </Card>
-      </main>
+     </main>
+      <Footer />
     </div>
   );
 };
