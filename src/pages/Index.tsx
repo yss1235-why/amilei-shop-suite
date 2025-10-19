@@ -66,7 +66,7 @@ const Index = () => {
         {/* Hero Section */}
         <div className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-            Welcome to Amilei
+            Welcome to Amilei eCollection
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover our curated collection of premium products
