@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Header from '@/components/Header';
+import ImageCarousel from '@/components/ImageCarousel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,13 +17,13 @@ interface Product {
   price: number;
   salePrice?: number;
   discountPercent?: number;
-  courierCharges?: number; // 🔧 NEW FIELD
-  imageUrl: string;
+  courierCharges?: number;
+  images: string[];
+  imageUrl?: string; // Backward compatibility
   inStock: boolean;
   stockCount: number;
   isFeatured: boolean;
 }
-
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -31,13 +32,17 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
       
       try {
         const productDoc = await getDoc(doc(db, 'products', id));
         if (productDoc.exists()) {
-          setProduct(productDoc.data() as Product);
+          const data = productDoc.data();
+          // Handle backward compatibility
+          const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
+          setProduct({ ...data, images } as Product);
         } else {
           toast.error('Product not found');
           navigate('/');
@@ -53,7 +58,7 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id, navigate]);
 
-  const handleAddToCart = () => {
+   const handleAddToCart = () => {
     if (!product || !id) return;
     
     if (!product.inStock) {
@@ -64,10 +69,10 @@ const ProductDetail = () => {
     addToCart({
       productId: id,
       name: product.name,
-      imageUrl: product.imageUrl,
+      imageUrl: product.images[0], // Use first image
       price: product.price,
       salePrice: product.salePrice,
-      courierCharges: product.courierCharges // 🔧 NEW FIELD
+      courierCharges: product.courierCharges
     }, quantity);
     
     toast.success(`Added ${quantity} item(s) to cart!`);
@@ -103,9 +108,9 @@ const ProductDetail = () => {
           Back
         </Button>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {/* Product Image */}
-          <div className="relative aspect-square rounded-lg overflow-hidden bg-secondary/50">
+       <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          {/* Product Image Carousel */}
+          <div className="relative">
             {product.isFeatured && (
               <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-accent to-accent/90">
                 Product of the Day
@@ -117,17 +122,13 @@ const ProductDetail = () => {
               </Badge>
             )}
             {!product.inStock && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
                 <Badge variant="secondary" className="text-lg px-6 py-3">
                   Out of Stock
                 </Badge>
               </div>
             )}
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
+            <ImageCarousel images={product.images} productName={product.name} />
           </div>
 
           {/* Product Info */}
