@@ -64,7 +64,7 @@ const AdminProductForm = () => {
     toast.success('Image uploaded successfully');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.price || !formData.imageUrl || !formData.stockCount) {
@@ -78,7 +78,10 @@ const AdminProductForm = () => {
       const price = parseFloat(formData.price);
       const salePrice = formData.salePrice ? parseFloat(formData.salePrice) : undefined;
       const stockCount = parseInt(formData.stockCount);
-      const courierCharges = formData.courierCharges ? parseFloat(formData.courierCharges) : undefined; // 🔧 NEW FIELD
+      // Only set courierCharges if a value is provided, otherwise undefined (will use default)
+      const courierCharges = formData.courierCharges && formData.courierCharges.trim() !== '' 
+        ? parseFloat(formData.courierCharges) 
+        : undefined;
 
       // Calculate discount percentage
       let discountPercent = 0;
@@ -203,9 +206,9 @@ const AdminProductForm = () => {
                   />
                 </div>
                 {/* 🔧 NEW FIELD */}
-                <div className="space-y-2">
+               <div className="space-y-2">
                   <Label htmlFor="courierCharges">
-                    Courier Charges (₹)
+                    Courier and Packaging Charges (₹)
                     <span className="text-xs text-muted-foreground ml-1">(Optional)</span>
                   </Label>
                   <Input
@@ -218,7 +221,7 @@ const AdminProductForm = () => {
                     placeholder="Default store rate"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Leave empty to use default store courier charges
+                    Leave empty to use default store courier and packaging charges
                   </p>
                 </div>
               </div>
