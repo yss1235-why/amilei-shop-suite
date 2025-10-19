@@ -150,8 +150,8 @@ const Order = () => {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-semibold">{formatCurrency(order.subtotal)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Courier Charges</span>
+             <div className="flex justify-between">
+                <span className="text-muted-foreground">Courier and Packaging Charges</span>
                 <span className="font-semibold">
                   {order.courierCharges === 0 ? (
                     <span className="text-green-600">FREE</span>
