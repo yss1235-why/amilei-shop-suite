@@ -126,11 +126,11 @@ const AdminSettings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Shipping Settings</CardTitle>
-              <CardDescription>Configure delivery charges</CardDescription>
+              <CardDescription>Configure delivery and packaging charges</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="courierCharges">Courier Charges (₹)</Label>
+             <div className="space-y-2">
+                <Label htmlFor="courierCharges">Courier and Packaging Charges (₹)</Label>
                 <Input
                   id="courierCharges"
                   type="number"
