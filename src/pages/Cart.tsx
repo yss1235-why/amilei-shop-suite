@@ -45,7 +45,12 @@ const Cart = () => {
     fetchSettings();
   }, []);
 
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
+ const handleQuantityChange = (productId: string, newQuantity: number) => {
+    const item = cart.find(i => i.productId === productId);
+    if (item && newQuantity > item.stockCount) {
+      toast.error(`Only ${item.stockCount} items available in stock`);
+      return;
+    }
     updateCartItemQuantity(productId, newQuantity);
     setCart(getCart());
     window.dispatchEvent(new Event('cartUpdated'));
@@ -143,13 +148,19 @@ const Cart = () => {
                     <div className="flex-1">
                       <h3 className="font-semibold mb-1">{item.name}</h3>
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="font-bold text-accent">{formatCurrency(itemPrice)}</span>
-                        {item.salePrice && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            {formatCurrency(item.price)}
-                          </span>
+                          <span className="font-bold text-accent">{formatCurrency(itemPrice)}</span>
+                          {item.salePrice && (
+                            <span className="text-sm text-muted-foreground line-through">
+                              {formatCurrency(item.price)}
+                            </span>
+                          )}
+                        </div>
+                        {/* 🔧 Stock warning */}
+                        {item.stockCount < 10 && (
+                          <p className="text-xs text-orange-600 mb-2">
+                            Only {item.stockCount} left in stock
+                          </p>
                         )}
-                      </div>
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
