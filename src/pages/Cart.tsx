@@ -197,9 +197,9 @@ const Cart = () => {
                   </div>
                   
                   {/* 🔧 UPDATED COURIER DISPLAY */}
-                  <div className="space-y-2">
+                 <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Courier Charges</span>
+                      <span className="text-muted-foreground">Courier and Packaging Charges</span>
                       <span className="font-semibold">
                         {courier === 0 ? (
                           <span className="text-green-600">FREE</span>
