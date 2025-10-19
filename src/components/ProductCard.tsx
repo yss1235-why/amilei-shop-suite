@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency, addToCart } from '@/lib/cart';
 import { toast } from 'sonner';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ProductCardProps {
   id: string;
@@ -11,8 +13,9 @@ interface ProductCardProps {
   price: number;
   salePrice?: number;
   discountPercent?: number;
-  courierCharges?: number; // 🔧 NEW FIELD
-  imageUrl: string;
+  courierCharges?: number;
+  images: string[];
+  imageUrl?: string; // Backward compatibility
   inStock: boolean;
   isFeatured?: boolean;
 }
@@ -23,12 +26,32 @@ const ProductCard = ({
   price,
   salePrice,
   discountPercent,
-  courierCharges, // 🔧 NEW FIELD
-  imageUrl,
+  courierCharges,
+  images,
+  imageUrl, // Backward compatibility
   inStock,
   isFeatured
 }: ProductCardProps) => {
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Handle backward compatibility
+  const productImages = images && images.length > 0 ? images : (imageUrl ? [imageUrl] : []);
+  const displayImage = productImages[currentImageIndex] || '/placeholder.svg';
+  
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (productImages.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % productImages.length);
+    }
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (productImages.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
+    }
+  };
+const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     
     if (!inStock) {
@@ -39,20 +62,19 @@ const ProductCard = ({
     addToCart({
       productId: id,
       name,
-      imageUrl,
+      imageUrl: productImages[0], // Use first image
       price,
       salePrice,
-      courierCharges // 🔧 NEW FIELD
+      courierCharges
     }, 1);
     
     toast.success('Added to cart!');
     window.dispatchEvent(new Event('cartUpdated'));
   };
-
   return (
     <Link to={`/product/${id}`}>
       <Card className="group overflow-hidden transition-all hover:shadow-[--shadow-product] border-border/50">
-        <div className="relative aspect-square overflow-hidden bg-secondary/50">
+       <div className="relative aspect-square overflow-hidden bg-secondary/50">
           {isFeatured && (
             <Badge className="absolute top-2 left-2 z-10 bg-gradient-to-r from-accent to-accent/90">
               Product of the Day
@@ -70,8 +92,41 @@ const ProductCard = ({
               </Badge>
             </div>
           )}
+          
+          {/* Image Navigation for multiple images */}
+          {productImages.length > 1 && (
+            <>
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              
+              {/* Image indicators */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex gap-1">
+                {productImages.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`h-1.5 rounded-full transition-all ${
+                      index === currentImageIndex
+                        ? 'w-4 bg-accent'
+                        : 'w-1.5 bg-background/60'
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+          
           <img
-            src={imageUrl}
+            src={displayImage}
             alt={name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
