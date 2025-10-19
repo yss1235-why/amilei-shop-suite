@@ -29,8 +29,9 @@ const ProductCard = ({
   discountPercent,
   courierCharges,
   images,
-  imageUrl, // Backward compatibility
+  imageUrl,
   inStock,
+  stockCount, // 🔧 Add this to destructured props
   isFeatured
 }: ProductCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -67,7 +68,7 @@ const handleAddToCart = (e: React.MouseEvent) => {
       price,
       salePrice,
       courierCharges,
-      stockCount: props.stockCount // 🔧 Pass stock count
+      stockCount // 🔧 Pass stock count (use destructured variable, not props)
     }, 1);
     
     toast.success('Added to cart!');
