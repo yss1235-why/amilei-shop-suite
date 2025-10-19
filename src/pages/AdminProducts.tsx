@@ -25,7 +25,8 @@ interface Product {
   name: string;
   price: number;
   salePrice?: number;
-  imageUrl: string;
+  images: string[];
+  imageUrl?: string; // Backward compatibility
   inStock: boolean;
   stockCount: number;
   isFeatured: boolean;
@@ -37,13 +38,19 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const fetchProducts = async () => {
+ const fetchProducts = async () => {
     try {
       const snapshot = await getDocs(collection(db, 'products'));
-      const productsList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Product[];
+      const productsList = snapshot.docs.map(doc => {
+        const data = doc.data();
+        // Handle backward compatibility
+        const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
+        return {
+          id: doc.id,
+          ...data,
+          images
+        };
+      }) as Product[];
       setProducts(productsList);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -113,11 +120,16 @@ const AdminProducts = () => {
                       Out of Stock
                     </Badge>
                   )}
-                  <img
-                    src={product.imageUrl}
+                 <img
+                    src={product.images[0] || '/placeholder.svg'}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
+                  {product.images.length > 1 && (
+                    <div className="absolute bottom-2 right-2 bg-background/80 text-xs px-2 py-1 rounded">
+                      +{product.images.length - 1} more
+                    </div>
+                  )}
                 </div>
                 <CardContent className="p-4 space-y-3">
                   <div>
