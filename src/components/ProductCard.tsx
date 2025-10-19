@@ -15,8 +15,9 @@ interface ProductCardProps {
   discountPercent?: number;
   courierCharges?: number;
   images: string[];
-  imageUrl?: string; // Backward compatibility
+  imageUrl?: string;
   inStock: boolean;
+  stockCount: number; // 🔧 NEW FIELD
   isFeatured?: boolean;
 }
 
@@ -62,10 +63,11 @@ const handleAddToCart = (e: React.MouseEvent) => {
     addToCart({
       productId: id,
       name,
-      imageUrl: productImages[0], // Use first image
+      imageUrl: productImages[0],
       price,
       salePrice,
-      courierCharges
+      courierCharges,
+      stockCount: props.stockCount // 🔧 Pass stock count
     }, 1);
     
     toast.success('Added to cart!');
