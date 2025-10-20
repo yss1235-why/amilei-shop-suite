@@ -5,7 +5,8 @@ export interface CartItem {
   price: number;
   salePrice?: number;
   courierCharges?: number;
-  stockCount: number; // 🔧 NEW FIELD - Track available stock
+  stockCount: number;
+  selectedSize?: string;
   quantity: number;
 }
 const CART_KEY = 'amilei_cart';
