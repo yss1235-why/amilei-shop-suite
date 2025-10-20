@@ -16,7 +16,8 @@ interface Product {
   images: string[];
   imageUrl?: string;
   inStock: boolean;
-  stockCount: number; // 🔧 NEW FIELD
+  stockCount: number;
+  sizes?: string[];
   isFeatured: boolean;
 }
 
