@@ -17,7 +17,8 @@ interface ProductCardProps {
   images: string[];
   imageUrl?: string;
   inStock: boolean;
-  stockCount: number; // 🔧 NEW FIELD
+  stockCount: number;
+  sizes?: string[];
   isFeatured?: boolean;
 }
 
@@ -31,7 +32,8 @@ const ProductCard = ({
   images,
   imageUrl,
   inStock,
-  stockCount, // 🔧 Add this to destructured props
+  stockCount,
+  sizes,
   isFeatured
 }: ProductCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -86,6 +88,11 @@ const handleAddToCart = (e: React.MouseEvent) => {
           {discountPercent && discountPercent > 0 && (
             <Badge variant="destructive" className="absolute top-2 right-2 z-10">
               {discountPercent}% OFF
+            </Badge>
+          )}
+         {sizes && sizes.length > 0 && (
+            <Badge variant="secondary" className="absolute bottom-2 left-2 z-10 text-xs">
+              {sizes.length} {sizes.length === 1 ? 'size' : 'sizes'}
             </Badge>
           )}
           {!inStock && (
