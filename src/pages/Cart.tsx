@@ -145,8 +145,13 @@ const Cart = () => {
                       className="w-24 h-24 object-cover rounded-md bg-secondary"
                     />
                     
-                    <div className="flex-1">
+                   <div className="flex-1">
                       <h3 className="font-semibold mb-1">{item.name}</h3>
+                      {item.selectedSize && (
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Size: <span className="font-medium">{item.selectedSize}</span>
+                        </p>
+                      )}
                       <div className="flex items-center gap-2 mb-3">
                           <span className="font-bold text-accent">{formatCurrency(itemPrice)}</span>
                           {item.salePrice && (
