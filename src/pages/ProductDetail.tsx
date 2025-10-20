@@ -23,13 +23,15 @@ interface Product {
   imageUrl?: string; // Backward compatibility
   inStock: boolean;
   stockCount: number;
+  sizes?: string[];
   isFeatured: boolean;
 }
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<Product | null>(null);
+ const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState('');
   const [loading, setLoading] = useState(true);
 
    useEffect(() => {
@@ -66,6 +68,11 @@ const ProductDetail = () => {
       return;
     }
     
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      toast.error('Please select a size');
+      return;
+    }
+    
     addToCart({
       productId: id,
       name: product.name,
@@ -73,7 +80,8 @@ const ProductDetail = () => {
       price: product.price,
       salePrice: product.salePrice,
       courierCharges: product.courierCharges,
-      stockCount: product.stockCount // 🔧 Pass stock count
+      stockCount: product.stockCount,
+      selectedSize: selectedSize || undefined
     }, quantity);
     
     toast.success(`Added ${quantity} item(s) to cart!`);
@@ -162,7 +170,27 @@ const ProductDetail = () => {
                 </p>
               </div>
             )}
-
+{/* Size Selector */}
+            {product.inStock && product.sizes && product.sizes.length > 0 && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">
+                  Select Size <span className="text-destructive">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {product.sizes.map((size, index) => (
+                    <Button
+                      key={index}
+                      type="button"
+                      variant={selectedSize === size ? 'default' : 'outline'}
+                      className={selectedSize === size ? 'bg-accent' : ''}
+                      onClick={() => setSelectedSize(size)}
+                    >
+                      {size}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* Quantity Selector */}
             {product.inStock && (
               <div className="mb-6">
