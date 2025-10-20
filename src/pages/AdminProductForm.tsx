@@ -9,11 +9,66 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+// Size Manager Component
+const SizeManager = ({ sizes, onSizesChange }: { sizes: string[]; onSizesChange: (sizes: string[]) => void }) => {
+  const [newSize, setNewSize] = useState('');
+
+  const handleAddSize = () => {
+    if (newSize.trim() && !sizes.includes(newSize.trim())) {
+      onSizesChange([...sizes, newSize.trim()]);
+      setNewSize('');
+    }
+  };
+
+  const handleRemoveSize = (index: number) => {
+    onSizesChange(sizes.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <Label>Product Sizes (Optional)</Label>
+      <p className="text-sm text-muted-foreground">
+        Add sizes like "Small", "Medium", "4 inch", etc. Leave empty if no size variants.
+      </p>
+      
+      <div className="flex gap-2">
+        <Input
+          value={newSize}
+          onChange={(e) => setNewSize(e.target.value)}
+          placeholder="e.g., Small, 4 inch, Premium"
+          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSize())}
+        />
+        <Button type="button" onClick={handleAddSize} variant="outline">
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {sizes.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {sizes.map((size, index) => (
+            <Badge key={index} variant="secondary" className="text-sm px-3 py-1">
+              {size}
+              <button
+                type="button"
+                onClick={() => handleRemoveSize(index)}
+                className="ml-2 hover:text-destructive"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const AdminProductForm = () => {
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEdit = !!id;
@@ -27,6 +82,7 @@ const [formData, setFormData] = useState({
     images: [] as string[],
     stockCount: '',
     courierCharges: '',
+    sizes: [] as string[],
     inStock: true,
     isFeatured: false
   });
@@ -41,7 +97,7 @@ const [formData, setFormData] = useState({
             // Handle backward compatibility
             const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
             
-            setFormData({
+           setFormData({
               name: data.name || '',
               description: data.description || '',
               price: data.price?.toString() || '',
@@ -49,6 +105,7 @@ const [formData, setFormData] = useState({
               images: images,
               stockCount: data.stockCount?.toString() || '',
               courierCharges: data.courierCharges?.toString() || '',
+              sizes: data.sizes || [],
               inStock: data.inStock ?? true,
               isFeatured: data.isFeatured ?? false
             });
@@ -100,7 +157,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         discountPercent = Math.round(((price - salePrice) / price) * 100);
       }
 
-   const productData = {
+ const productData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price,
@@ -109,6 +166,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         images: formData.images,
         stockCount,
         courierCharges,
+        sizes: formData.sizes,
         inStock: formData.inStock,
         isFeatured: formData.isFeatured
       };
@@ -237,7 +295,12 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
               </div>
 
-            {/* Image Upload */}
+           {/* Sizes */}
+              <SizeManager
+                sizes={formData.sizes}
+                onSizesChange={(sizes) => setFormData({ ...formData, sizes })}
+              />
+              {/* Image Upload */}
               <div className="space-y-2">
                 <Label>Product Images * (Up to 5 images)</Label>
                 <CloudinaryUpload
