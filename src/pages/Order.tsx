@@ -18,9 +18,9 @@ interface OrderItem {
   imageUrl: string;
   price: number;
   salePrice?: number;
+  selectedSize?: string;
   quantity: number;
 }
-
 interface Order {
   orderId: string;
   items: OrderItem[];
@@ -166,6 +166,11 @@ useEffect(() => {
                       />
                       <div className="flex-1">
                         <h4 className="font-medium mb-1">{item.name}</h4>
+                        {item.selectedSize && (
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Size: {item.selectedSize}
+                          </p>
+                        )}
                         <div className="flex items-center gap-2 text-sm">
                           <span className="text-accent font-semibold">{formatCurrency(itemPrice)}</span>
                           <span className="text-muted-foreground">× {item.quantity}</span>
