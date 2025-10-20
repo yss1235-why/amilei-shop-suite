@@ -25,10 +25,13 @@ interface Product {
   name: string;
   price: number;
   salePrice?: number;
+  discountPercent?: number;
+  courierCharges?: number;
   images: string[];
-  imageUrl?: string; // Backward compatibility
+  imageUrl?: string;
   inStock: boolean;
   stockCount: number;
+  sizes?: string[];
   isFeatured: boolean;
 }
 
