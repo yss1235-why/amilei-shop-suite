@@ -76,9 +76,9 @@ const handleAddToCart = (e: React.MouseEvent) => {
     toast.success('Added to cart!');
     window.dispatchEvent(new Event('cartUpdated'));
   };
-  return (
-    <Link to={`/product/${id}`}>
-      <Card className="group overflow-hidden transition-all hover:shadow-[--shadow-product] border-border/50">
+return (
+  <Link to={`/product/${id}`}>
+    <Card className={`group overflow-hidden transition-all hover:shadow-[--shadow-product] border-border/50 ${!inStock ? 'opacity-60' : ''}`}>
        <div className="relative aspect-square overflow-hidden bg-secondary/50">
           {isFeatured && (
             <Badge className="absolute top-2 left-2 z-10 bg-gradient-to-r from-accent to-accent/90">
