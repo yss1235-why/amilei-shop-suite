@@ -92,10 +92,42 @@ useEffect(() => {
     window.open(whatsappUrl, '_blank');
   };
 
-  const handleGenerateInvoice = async () => {
+ const handleGenerateInvoice = async () => {
   if (!order || !user) return;
 
   try {
+    // Check if stock already reduced
+    const ordersRef = collection(db, 'orders');
+    const q = query(ordersRef, where('orderId', '==', order.orderId));
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+      toast.error('Order not found');
+      return;
+    }
+    
+    const orderDoc = snapshot.docs[0];
+    const orderData = orderDoc.data();
+    
+    // If stock already reduced, show error
+    if (orderData.stockReduced) {
+      toast.error('Stock already reduced for this order. Invoice may have been generated before.');
+      return;
+    }
+    
+    // Reduce stock for each item BEFORE generating invoice
+    const { reduceProductStock } = await import('@/lib/cart');
+    
+    for (const item of order.items) {
+      try {
+        await reduceProductStock(item.productId, item.quantity);
+      } catch (error) {
+        console.error(`Error reducing stock for ${item.name}:`, error);
+        toast.error(`Failed to reduce stock for ${item.name}`);
+        return; // Stop if any stock reduction fails
+      }
+    }
+    
     // Generate PDF
     generateInvoice({
       orderId: order.orderId,
@@ -123,24 +155,22 @@ useEffect(() => {
       }))
     });
 
-    // Update order to mark invoice as generated
-    const ordersRef = collection(db, 'orders');
-    const q = query(ordersRef, where('orderId', '==', order.orderId));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      const orderDocRef = doc(db, 'orders', snapshot.docs[0].id);
-      await updateDoc(orderDocRef, {
-        invoiceGenerated: true,
-        invoiceGeneratedAt: new Date()
-      });
-    }
+    // Update order to mark invoice as generated AND stock reduced
+    const orderDocRef = doc(db, 'orders', orderDoc.id);
+    await updateDoc(orderDocRef, {
+      invoiceGenerated: true,
+      invoiceGeneratedAt: new Date(),
+      stockReduced: true,  // NEW FIELD
+      stockReducedAt: new Date()  // NEW FIELD
+    });
 
-    toast.success('Invoice generated successfully!');
+    toast.success('Invoice generated and stock updated successfully!');
   } catch (error) {
     console.error('Error generating invoice:', error);
     toast.error('Failed to generate invoice');
   }
 };
+    
 
   if (loading) {
     return (
