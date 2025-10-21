@@ -36,6 +36,8 @@ interface Order {
   whatsappSent: boolean;
   invoiceGenerated: boolean;
   invoiceGeneratedAt: any;
+  stockReduced: boolean;  // NEW FIELD
+  stockReducedAt: any;  // NEW FIELD
   adminNotes: string;
 }
 
@@ -262,12 +264,17 @@ const AdminOrders = () => {
                       <div className="flex items-center gap-3">
                         <h3 className="font-semibold text-lg">{order.orderId}</h3>
                         {getStatusBadge(order.status)}
-                        {order.invoiceGenerated && (
-                          <Badge variant="secondary">
-                            <FileText className="h-3 w-3 mr-1" />
-                            Invoice Generated
-                          </Badge>
-                        )}
+                       {order.invoiceGenerated && (
+                            <Badge variant="secondary">
+                              <FileText className="h-3 w-3 mr-1" />
+                              Invoice Generated
+                            </Badge>
+                          )}
+                          {order.stockReduced && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-800">
+                              Stock Reduced
+                            </Badge>
+                          )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {order.createdAt?.toDate?.().toLocaleString() || 'N/A'}
