@@ -12,6 +12,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
 import AdminProductForm from "./pages/AdminProductForm";
 import AdminSettings from "./pages/AdminSettings";
+import AdminOrders from "./pages/AdminOrders";
+import AdminInvoices from "./pages/AdminInvoices";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/admin/products/add" element={<AdminProductForm />} />
           <Route path="/admin/products/edit/:id" element={<AdminProductForm />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/invoices" element={<AdminInvoices />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
