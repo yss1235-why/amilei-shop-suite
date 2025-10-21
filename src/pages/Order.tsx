@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc } from 'firebase/firestore';
 import { useParams, useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
@@ -91,26 +92,55 @@ useEffect(() => {
     window.open(whatsappUrl, '_blank');
   };
 
-  const handleGenerateInvoice = () => {
-    if (!order) return;
+  const handleGenerateInvoice = async () => {
+  if (!order || !user) return;
 
-    try {
-      generateInvoice({
-        orderId: order.orderId,
-        items: order.items,
-        subtotal: order.subtotal,
-        courierCharges: order.courierCharges,
-        total: order.total,
-        createdAt: order.createdAt,
-        storeName,
-        whatsappNumber
+  try {
+    // Generate PDF
+    generateInvoice({
+      orderId: order.orderId,
+      items: order.items,
+      subtotal: order.subtotal,
+      courierCharges: order.courierCharges,
+      total: order.total,
+      createdAt: order.createdAt,
+      storeName,
+      whatsappNumber
+    });
+
+    // Save invoice record to Firestore
+    const invoiceId = `INV-${Date.now()}`;
+    await addDoc(collection(db, 'invoices'), {
+      invoiceId,
+      orderId: order.orderId,
+      generatedBy: user.email,
+      generatedAt: new Date(),
+      orderTotal: order.total,
+      orderItems: order.items.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.salePrice || item.price
+      }))
+    });
+
+    // Update order to mark invoice as generated
+    const ordersRef = collection(db, 'orders');
+    const q = query(ordersRef, where('orderId', '==', order.orderId));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const orderDocRef = doc(db, 'orders', snapshot.docs[0].id);
+      await updateDoc(orderDocRef, {
+        invoiceGenerated: true,
+        invoiceGeneratedAt: new Date()
       });
-      toast.success('Invoice generated successfully!');
-    } catch (error) {
-      console.error('Error generating invoice:', error);
-      toast.error('Failed to generate invoice');
     }
-  };
+
+    toast.success('Invoice generated successfully!');
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    toast.error('Failed to generate invoice');
+  }
+};
 
   if (loading) {
     return (
