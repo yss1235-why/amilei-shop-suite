@@ -25,8 +25,10 @@ const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
- useEffect(() => {
+useEffect(() => {
     const fetchProducts = async () => {
       try {
         const productsRef = collection(db, 'products');
@@ -47,6 +49,7 @@ const Index = () => {
         
         setFeaturedProduct(featured || null);
         setProducts(regular);
+        setFilteredProducts(regular);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -56,6 +59,24 @@ const Index = () => {
 
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredProducts(products);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = products.filter(product =>
+      product.name.toLowerCase().includes(query) ||
+      product.description.toLowerCase().includes(query)
+    );
+    setFilteredProducts(filtered);
+  }, [searchQuery, products]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
 
   if (loading) {
    return (
@@ -68,9 +89,9 @@ const Index = () => {
     );
   }
 
-  return (
+return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header onSearch={handleSearch} searchQuery={searchQuery} />
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
@@ -99,16 +120,37 @@ const Index = () => {
 
         {/* Products Grid */}
         <section>
-          <h2 className="text-2xl font-bold mb-6 text-foreground">All Products</h2>
-          {products.length > 0 ? (
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground">
+              {searchQuery ? 'Search Results' : 'All Products'}
+            </h2>
+            {searchQuery && (
+              <p className="text-sm text-muted-foreground">
+                Found {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+              </p>
+            )}
+          </div>
+          {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-             {products.map(product => (
+              {filteredProducts.map(product => (
                 <ProductCard key={product.id} {...product} />
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">No products available at the moment</p>
+              <p className="text-muted-foreground text-lg">
+                {searchQuery 
+                  ? `No products found for "${searchQuery}"`
+                  : 'No products available at the moment'}
+              </p>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="mt-4 text-accent hover:underline"
+                >
+                  Clear search
+                </button>
+              )}
             </div>
           )}
         </section>
