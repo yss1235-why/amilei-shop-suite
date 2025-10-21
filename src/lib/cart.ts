@@ -107,3 +107,32 @@ export const getCartTotal = (defaultCourierCharges: number, freeShippingThreshol
 export const formatCurrency = (amount: number): string => {
   return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 };
+
+// NEW FUNCTION - Add this after formatCurrency
+export const reduceProductStock = async (productId: string, quantity: number) => {
+  try {
+    const { doc, getDoc, updateDoc } = await import('firebase/firestore');
+    const { db } = await import('./firebase');
+    
+    const productRef = doc(db, 'products', productId);
+    const productDoc = await getDoc(productRef);
+    
+    if (!productDoc.exists()) {
+      throw new Error('Product not found');
+    }
+    
+    const currentStock = productDoc.data().stockCount;
+    const newStock = currentStock - quantity;
+    
+    // Update stock count
+    await updateDoc(productRef, {
+      stockCount: Math.max(0, newStock),
+      inStock: newStock > 0
+    });
+    
+    return newStock;
+  } catch (error) {
+    console.error('Error reducing stock:', error);
+    throw error;
+  }
+};
