@@ -75,16 +75,22 @@ const Cart = () => {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
 
-      await addDoc(collection(db, 'orders'), {
-        orderId,
-        items: cart,
-        subtotal,
-        courierCharges: courier,
-        courierBreakdown, // 🔧 Store breakdown
-        total,
-        createdAt: new Date(),
-        expiresAt
-      });
+     await addDoc(collection(db, 'orders'), {
+  orderId,
+  items: cart,
+  subtotal,
+  courierCharges: courier,
+  courierBreakdown,
+  total,
+  createdAt: new Date(),
+  expiresAt,
+  status: 'pending',
+  whatsappSent: true,
+  invoiceGenerated: false,
+  invoiceGeneratedAt: null,
+  adminNotes: '',
+  lastUpdated: new Date()
+});
 
       const orderUrl = `${window.location.origin}/order/${orderId}`;
       const message = `Hi! I'd like to place an order from Amilei:\n\nOrder ID: ${orderId}\nOrder Details: ${orderUrl}\n\nTotal: ${formatCurrency(total)} (${gstMessage})\n\nPlease confirm availability!`;
