@@ -75,7 +75,7 @@ const Cart = () => {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
 
-     await addDoc(collection(db, 'orders'), {
+    await addDoc(collection(db, 'orders'), {
   orderId,
   items: cart,
   subtotal,
@@ -88,6 +88,8 @@ const Cart = () => {
   whatsappSent: true,
   invoiceGenerated: false,
   invoiceGeneratedAt: null,
+  stockReduced: false,  // NEW FIELD
+  stockReducedAt: null,  // NEW FIELD
   adminNotes: '',
   lastUpdated: new Date()
 });
