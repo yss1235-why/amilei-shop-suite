@@ -30,26 +30,32 @@ const Index = () => {
 
 useEffect(() => {
     const fetchProducts = async () => {
-      try {
-        const productsRef = collection(db, 'products');
-        const snapshot = await getDocs(productsRef);
-        const productsList = snapshot.docs.map(doc => {
-          const data = doc.data();
-          // Handle backward compatibility
-          const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
-          return {
-            id: doc.id,
-            ...data,
-            images
-          };
-        }) as Product[];
-        
-        const featured = productsList.find(p => p.isFeatured);
-        const regular = productsList.filter(p => !p.isFeatured);
-        
-        setFeaturedProduct(featured || null);
-        setProducts(regular);
-        setFilteredProducts(regular);
+  try {
+    const productsRef = collection(db, 'products');
+    const snapshot = await getDocs(productsRef);
+    const productsList = snapshot.docs.map(doc => {
+      const data = doc.data();
+      // Handle backward compatibility
+      const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
+      return {
+        id: doc.id,
+        ...data,
+        images
+      };
+    }) as Product[];
+    
+    const featured = productsList.find(p => p.isFeatured);
+    const regular = productsList.filter(p => !p.isFeatured);
+    
+    // Sort regular products: in-stock first, out-of-stock last
+    const sortedRegular = regular.sort((a, b) => {
+      if (a.inStock === b.inStock) return 0;
+      return a.inStock ? -1 : 1;
+    });
+    
+    setFeaturedProduct(featured || null);
+    setProducts(sortedRegular);
+    setFilteredProducts(sortedRegular);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
