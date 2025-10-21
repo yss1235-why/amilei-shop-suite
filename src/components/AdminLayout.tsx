@@ -4,7 +4,7 @@ import { auth } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { signOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
-import { Loader2, LogOut, LayoutDashboard, Package, Settings } from 'lucide-react';
+import { Loader2, LogOut, LayoutDashboard, Package, Settings, ShoppingCart, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Get admin email from environment variable
@@ -74,10 +74,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   }
 
   const navItems = [
-    { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/admin/products', icon: Package, label: 'Products' },
-    { path: '/admin/settings', icon: Settings, label: 'Settings' },
-  ];
+  { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/admin/products', icon: Package, label: 'Products' },
+  { path: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+  { path: '/admin/invoices', icon: FileText, label: 'Invoices' },
+  { path: '/admin/settings', icon: Settings, label: 'Settings' },
+];
 
   return (
     <div className="min-h-screen bg-background">
