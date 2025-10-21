@@ -6,17 +6,21 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, PackageCheck, PackageX, Star, Plus, Settings as SettingsIcon, Loader2 } from 'lucide-react';
+import { Package, PackageCheck, PackageX, Star, Plus, Settings as SettingsIcon, Loader2, ShoppingCart, AlertCircle } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    total: 0,
-    inStock: 0,
-    outOfStock: 0,
-    featured: 0
-  });
+ const [stats, setStats] = useState({
+  total: 0,
+  inStock: 0,
+  outOfStock: 0,
+  featured: 0
+});
+const [orderStats, setOrderStats] = useState({
+  totalOrders: 0,
+  pendingOrders: 0
+});
   const [subscriptionExpiry, setSubscriptionExpiry] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,12 +40,13 @@ const AdminDashboard = () => {
 
         setStats({ total, inStock, outOfStock, featured });
 
-        // Fetch admin data for subscription
-        const adminDoc = await getDoc(doc(db, 'admins', user.uid));
-        if (adminDoc.exists()) {
-          const expiry = adminDoc.data().subscriptionExpiry?.toDate();
-          setSubscriptionExpiry(expiry);
-        }
+        // Fetch order stats
+          const ordersSnapshot = await getDocs(collection(db, 'orders'));
+          const orders = ordersSnapshot.docs.map(doc => doc.data());
+          const totalOrders = orders.length;
+          const pendingOrders = orders.filter(o => o.status === 'pending').length;
+          
+          setOrderStats({ totalOrders, pendingOrders });
       } catch (error) {
         console.error('Error fetching stats:', error);
       } finally {
@@ -63,11 +68,13 @@ const AdminDashboard = () => {
   }
 
   const statCards = [
-    { title: 'Total Products', value: stats.total, icon: Package, color: 'text-primary' },
-    { title: 'In Stock', value: stats.inStock, icon: PackageCheck, color: 'text-green-600' },
-    { title: 'Out of Stock', value: stats.outOfStock, icon: PackageX, color: 'text-destructive' },
-    { title: 'Featured', value: stats.featured, icon: Star, color: 'text-accent' },
-  ];
+  { title: 'Total Products', value: stats.total, icon: Package, color: 'text-primary' },
+  { title: 'In Stock', value: stats.inStock, icon: PackageCheck, color: 'text-green-600' },
+  { title: 'Out of Stock', value: stats.outOfStock, icon: PackageX, color: 'text-destructive' },
+  { title: 'Featured', value: stats.featured, icon: Star, color: 'text-accent' },
+  { title: 'Total Orders', value: orderStats.totalOrders, icon: ShoppingCart, color: 'text-blue-600' },
+  { title: 'Pending Orders', value: orderStats.pendingOrders, icon: AlertCircle, color: 'text-yellow-600' },
+];
 
   return (
     <AdminLayout>
@@ -129,6 +136,13 @@ const AdminDashboard = () => {
               <SettingsIcon className="mr-2 h-4 w-4" />
               Store Settings
             </Button>
+            <Button
+                onClick={() => navigate('/admin/orders')}
+                variant="outline"
+              >
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                View Orders
+              </Button>
           </CardContent>
         </Card>
 
