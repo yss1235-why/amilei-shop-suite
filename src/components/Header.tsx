@@ -48,30 +48,30 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-pink-500 via-pink-400 to-pink-500 backdrop-blur shadow-md">
+   <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md shadow-sm transition-all duration-300">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
         <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
-          <h1 className="text-xl md:text-2xl font-bold text-white drop-shadow-md">
-            Amilei eCollection
-          </h1>
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+  Amilei
+</h1>
         </Link>
         
         {/* Desktop Search */}
         {onSearch && (
           <div className="hidden md:flex flex-1 max-w-md mx-4">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search products..."
                 value={localQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-10 bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 focus:border-white/50"
+               className="w-full pl-10 pr-10 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-primary/30 transition-all"
               />
               {localQuery && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
+                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -87,7 +87,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               variant="ghost"
               size="icon"
               onClick={() => setShowSearch(!showSearch)}
-              className="md:hidden text-white hover:bg-white/20"
+             className="md:hidden text-foreground hover:bg-secondary transition-colors"
             >
               {showSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
             </Button>
@@ -95,7 +95,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
 
           {/* Cart Icon */}
           <Link to="/cart">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/20">
+            <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-secondary transition-colors">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
                 <Badge 
@@ -112,7 +112,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
 
       {/* Mobile Search Bar */}
       {onSearch && showSearch && (
-        <div className="md:hidden border-t border-white/20 px-4 py-3">
+        <div className="md:hidden border-t border-border px-4 py-3 bg-background/95">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
             <Input
@@ -120,7 +120,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               placeholder="Search products..."
               value={localQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-10 bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 focus:border-white/50"
+              className="w-full pl-10 pr-10 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-primary/30 transition-all"
               autoFocus
             />
             {localQuery && (
