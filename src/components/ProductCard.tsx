@@ -81,10 +81,10 @@ return (
    <Card className={`group overflow-hidden transition-all duration-500 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1 border-border/40 ${!inStock ? 'opacity-60' : ''}`}>
       <div className="relative aspect-square overflow-hidden bg-secondary/30">
           {isFeatured && (
-            <Badge className="absolute top-2 left-2 z-10 bg-gradient-to-r from-accent to-accent/90">
-              Product of the Day
-            </Badge>
-          )}
+              <Badge className="absolute top-3 left-3 z-10 bg-gradient-to-r from-accent to-accent/90 shadow-md px-3 py-1.5 font-medium tracking-wide">
+                Featured
+              </Badge>
+            )}
           {discountPercent && discountPercent > 0 && (
             <Badge variant="destructive" className="absolute top-2 right-2 z-10">
               {discountPercent}% OFF
@@ -169,7 +169,7 @@ return (
           <Button 
             onClick={handleAddToCart}
             disabled={!inStock}
-            className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent"
+            className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent shadow-sm hover:shadow-md transition-all duration-300 font-medium"
           >
             Add to Cart
           </Button>
