@@ -201,9 +201,9 @@ useEffect(() => {
       <Header />
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <Card className="bg-white shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5 text-accent" />
               Order Details
             </CardTitle>
