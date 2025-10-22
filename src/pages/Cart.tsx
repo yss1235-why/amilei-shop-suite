@@ -117,7 +117,7 @@ const Cart = () => {
   <div className="min-h-screen bg-background flex flex-col">
     <Header />
         <div className="container mx-auto px-4 py-16">
-          <Card className="max-w-md mx-auto text-center py-12">
+         <Card className="max-w-md mx-auto text-center py-12 bg-white shadow-lg">
             <CardContent>
               <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
               <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
@@ -211,7 +211,7 @@ const Cart = () => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-20">
+           <Card className="sticky top-20 bg-white shadow-lg">
               <CardContent className="p-6">
                 <h2 className="text-xl font-bold mb-4">Order Summary</h2>
                 
