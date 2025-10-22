@@ -108,35 +108,35 @@ const ProductDetail = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+       <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-6 hover:bg-secondary transition-all duration-300 font-medium"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
 
        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Product Image Carousel */}
           <div className="relative">
             {product.isFeatured && (
-              <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-accent to-accent/90">
-                Product of the Day
+              <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-accent to-accent/90 shadow-lg px-4 py-2 font-medium tracking-wide">
+                Featured Product
               </Badge>
             )}
             {product.discountPercent && product.discountPercent > 0 && (
-              <Badge variant="destructive" className="absolute top-4 right-4 z-10">
-                {product.discountPercent}% OFF
-              </Badge>
-            )}
-            {!product.inStock && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
-                <Badge variant="secondary" className="text-lg px-6 py-3">
-                  Out of Stock
+                <Badge variant="destructive" className="absolute top-4 right-4 z-10 shadow-lg px-4 py-2 font-semibold">
+                  {product.discountPercent}% OFF
                 </Badge>
-              </div>
-            )}
+              )}
+            {!product.inStock && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/90 backdrop-blur-md rounded-lg">
+                  <Badge variant="secondary" className="text-lg px-8 py-3.5 shadow-xl font-semibold border border-border">
+                    Out of Stock
+                  </Badge>
+                </div>
+              )}
             <ImageCarousel images={product.images} productName={product.name} />
           </div>
 
@@ -182,7 +182,11 @@ const ProductDetail = () => {
                       key={index}
                       type="button"
                       variant={selectedSize === size ? 'default' : 'outline'}
-                      className={selectedSize === size ? 'bg-accent' : ''}
+                      className={`transition-all duration-300 font-medium ${
+                        selectedSize === size 
+                          ? 'bg-accent shadow-md scale-105' 
+                          : 'hover:border-accent/50 hover:bg-accent/5'
+                      }`}
                       onClick={() => setSelectedSize(size)}
                     >
                       {size}
@@ -197,33 +201,35 @@ const ProductDetail = () => {
                 <label className="block text-sm font-medium mb-2">Quantity</label>
                 <div className="flex items-center gap-3">
                   <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
+                      size="icon"
+                      variant="outline"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
                   <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+                 <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
+                  className="hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
                 </div>
               </div>
             )}
 
             {/* Add to Cart Button */}
-            <Button
-              onClick={handleAddToCart}
-              disabled={!product.inStock}
-              size="lg"
-              className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent"
-            >
-              {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-            </Button>
+           <Button
+            onClick={handleAddToCart}
+            disabled={!product.inStock}
+            size="lg"
+            className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent shadow-md hover:shadow-lg transition-all duration-300 font-semibold tracking-wide"
+          >
+            {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+          </Button>
           </div>
         </div>
     </main>
