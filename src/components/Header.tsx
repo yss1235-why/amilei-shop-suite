@@ -66,7 +66,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 placeholder="Search products..."
                 value={localQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-               className="w-full pl-10 pr-10 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-primary/30 transition-all"
+               className="w-full pl-10 pr-10 bg-white border-border text-foreground placeholder:text-muted-foreground focus:bg-white focus:border-primary/40 focus:shadow-sm transition-all"
               />
               {localQuery && (
                 <button
@@ -112,7 +112,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
 
       {/* Mobile Search Bar */}
       {onSearch && showSearch && (
-        <div className="md:hidden border-t border-border px-4 py-3 bg-background/95">
+        <div className="md:hidden border-t border-border px-4 py-3 bg-white/95 shadow-sm">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
             <Input
