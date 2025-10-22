@@ -86,18 +86,18 @@ return (
               </Badge>
             )}
           {discountPercent && discountPercent > 0 && (
-            <Badge variant="destructive" className="absolute top-2 right-2 z-10">
+            <Badge variant="destructive" className="absolute top-3 right-3 z-10 shadow-md px-3 py-1.5 font-semibold">
               {discountPercent}% OFF
             </Badge>
           )}
          {sizes && sizes.length > 0 && (
-            <Badge variant="secondary" className="absolute bottom-2 left-2 z-10 text-xs">
+            <Badge variant="secondary" className="absolute bottom-3 left-3 z-10 text-xs shadow-sm bg-background/80 backdrop-blur-sm border border-border/50 font-medium">
               {sizes.length} {sizes.length === 1 ? 'size' : 'sizes'}
             </Badge>
           )}
           {!inStock && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-              <Badge variant="secondary" className="text-base px-4 py-2">
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/90 backdrop-blur-md">
+              <Badge variant="secondary" className="text-sm px-6 py-2.5 shadow-md font-semibold border border-border">
                 Out of Stock
               </Badge>
             </div>
@@ -106,28 +106,28 @@ return (
           {/* Image Navigation for multiple images */}
           {productImages.length > 1 && (
             <>
-              <button
-                onClick={handlePrevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
+             <button
+              onClick={handlePrevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background/90 hover:bg-background backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md hover:scale-110"
+            >
+              <ChevronLeft className="h-4 w-4 text-foreground" />
+            </button>
               <button
                 onClick={handleNextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/90 hover:bg-background backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md hover:scale-110"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 text-foreground" />
               </button>
               
               {/* Image indicators */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex gap-1">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5">
                 {productImages.map((_, index) => (
                   <div
                     key={index}
-                    className={`h-1.5 rounded-full transition-all ${
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
                       index === currentImageIndex
-                        ? 'w-4 bg-accent'
-                        : 'w-1.5 bg-background/60'
+                        ? 'w-6 bg-accent shadow-sm'
+                        : 'w-1.5 bg-background/70 backdrop-blur-sm'
                     }`}
                   />
                 ))}
@@ -135,10 +135,10 @@ return (
             </>
           )}
           
-          <img
+        <img
             src={displayImage}
             alt={name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-all duration-500 group-hover:scale-110"
           />
         </div>
         
