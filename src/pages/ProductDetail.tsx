@@ -155,7 +155,7 @@ const ProductDetail = () => {
               )}
             </div>
 
-            <Card className="mb-6">
+           <Card className="mb-6 bg-white shadow-sm">
               <CardContent className="p-4">
                 <p className="text-muted-foreground whitespace-pre-wrap">
                   {product.description}
