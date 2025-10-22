@@ -101,21 +101,22 @@ return (
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-            Welcome to Amilei eCollection
+       <div className="mb-16 text-center py-12 px-4">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent tracking-tight leading-tight">
+            Amilei
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover our curated collection of premium products
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light tracking-wide">
+            Curated collection of premium products
           </p>
+          <div className="mt-8 h-px w-24 mx-auto bg-gradient-to-r from-transparent via-accent to-transparent"></div>
         </div>
 
         {/* Featured Product */}
         {featuredProduct && (
           <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <span className="bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
-                Product of the Day
+            <h2 className="text-3xl font-bold mb-8 text-center">
+              <span className="bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent tracking-tight">
+                Featured Product
               </span>
             </h2>
             <div className="max-w-md mx-auto">
@@ -127,7 +128,7 @@ return (
         {/* Products Grid */}
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-foreground">
+            <h2 className="text-3xl font-bold text-foreground tracking-tight">
               {searchQuery ? 'Search Results' : 'All Products'}
             </h2>
             {searchQuery && (
