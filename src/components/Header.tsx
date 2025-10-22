@@ -87,23 +87,23 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
               variant="ghost"
               size="icon"
               onClick={() => setShowSearch(!showSearch)}
-             className="md:hidden text-foreground hover:bg-secondary transition-colors"
-            >
-              {showSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              className="md:hidden text-foreground hover:bg-secondary transition-all duration-300 hover:scale-105"
+            >}
             </Button>
           )}
 
           {/* Cart Icon */}
           <Link to="/cart">
-            <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-secondary transition-colors">
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <Badge 
-                  variant="default" 
-                  className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-accent"
-                >
-                  {cartCount}
-                </Badge>
+           <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-secondary transition-all duration-300 hover:scale-105">
+            <ShoppingCart className="h-5 w-5" />
+             {cartCount > 0 && (
+                  <Badge 
+                    variant="default" 
+                    className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-accent shadow-md animate-pulse"
+                  >
+                    {cartCount}
+                  </Badge>
+                )}
               )}
             </Button>
           </Link>
