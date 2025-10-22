@@ -103,7 +103,7 @@ return (
         {/* Hero Section */}
        <div className="mb-16 text-center py-12 px-4">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent tracking-tight leading-tight">
-            Amilei
+            Amilei eCollection
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light tracking-wide">
             Curated collection of premium products
