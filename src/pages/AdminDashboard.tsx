@@ -94,7 +94,7 @@ const [orderStats, setOrderStats] = useState({
           {statCards.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.title}>
+             <Card key={stat.title} className="bg-white shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
                     {stat.title}
@@ -110,7 +110,7 @@ const [orderStats, setOrderStats] = useState({
         </div>
 
         {/* Quick Actions */}
-        <Card>
+       <Card className="bg-white shadow-sm">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
@@ -148,7 +148,7 @@ const [orderStats, setOrderStats] = useState({
 
         {/* Getting Started */}
         {stats.total === 0 && (
-          <Card className="border-accent/50 bg-accent/5">
+         <Card className="border-accent/50 bg-accent/5 shadow-sm">
             <CardHeader>
               <CardTitle>Get Started</CardTitle>
             </CardHeader>
