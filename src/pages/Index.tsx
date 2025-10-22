@@ -101,7 +101,7 @@ return (
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
-       <div className="mb-16 text-center py-12 px-4">
+      <div className="mb-16 text-center py-16 px-4 bg-white/50 rounded-2xl backdrop-blur-sm border border-border/30 shadow-sm">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent tracking-tight leading-tight">
             Amilei eCollection
           </h1>
