@@ -23,7 +23,7 @@ interface Product {
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -44,7 +44,7 @@ useEffect(() => {
       };
     }) as Product[];
     
-    const featured = productsList.find(p => p.isFeatured);
+    const featured = productsList.filter(p => p.isFeatured);
     const regular = productsList.filter(p => !p.isFeatured);
     
     // Sort regular products: in-stock first, out-of-stock last
@@ -53,7 +53,7 @@ useEffect(() => {
       return a.inStock ? -1 : 1;
     });
     
-    setFeaturedProduct(featured || null);
+    setFeaturedProducts(featured);
     setProducts(sortedRegular);
     setFilteredProducts(sortedRegular);
       } catch (error) {
@@ -100,31 +100,32 @@ return (
       <Header onSearch={handleSearch} searchQuery={searchQuery} />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-      <div className="mb-16 text-center py-16 px-4 bg-white/50 rounded-2xl backdrop-blur-sm border border-border/30 shadow-sm">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent tracking-tight leading-tight">
-            Amilei eCollection
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light tracking-wide">
-            Curated collection of premium products
-          </p>
-          <div className="mt-8 h-px w-24 mx-auto bg-gradient-to-r from-transparent via-accent to-transparent"></div>
-        </div>
-
-        {/* Featured Product */}
-        {featuredProduct && (
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-8 text-center">
-              <span className="bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent tracking-tight">
-                Featured Product
-              </span>
-            </h2>
-            <div className="max-w-md mx-auto">
-              <ProductCard {...featuredProduct} />
-            </div>
-          </section>
-        )}
-
+        {/* Featured Products Section */}
+{featuredProducts.length > 0 && (
+  <section className="mb-16">
+    <div className="bg-gradient-to-br from-accent/5 via-accent/3 to-transparent rounded-3xl p-6 md:p-10 border border-accent/10 shadow-sm">
+      <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+        <span className="bg-gradient-to-r from-accent via-accent/90 to-accent/70 bg-clip-text text-transparent tracking-tight">
+          Featured Products
+        </span>
+      </h2>
+      
+      <div className={`grid gap-6 ${
+        featuredProducts.length === 1 
+          ? 'max-w-md mx-auto' 
+          : featuredProducts.length === 2 
+          ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto' 
+          : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      }`}>
+        {featuredProducts.map(product => (
+          <div key={product.id} className="transform transition-all duration-300 hover:scale-[1.02]">
+            <ProductCard {...product} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
         {/* Products Grid */}
         <section>
           <div className="flex items-center justify-between mb-6">
