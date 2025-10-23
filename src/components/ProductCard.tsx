@@ -81,8 +81,8 @@ return (
    <Card className={`group overflow-hidden transition-all duration-500 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1 border-border/40 ${!inStock ? 'opacity-60' : ''}`}>
      <div className="relative aspect-square overflow-hidden bg-white">
           {isFeatured && (
-              <Badge className="absolute top-3 left-3 z-10 bg-gradient-to-r from-accent to-accent/90 shadow-md px-3 py-1.5 font-medium tracking-wide">
-                Featured
+              <Badge className="absolute top-3 left-3 z-10 bg-gradient-to-r from-accent to-accent/90 shadow-lg px-3 py-1.5 font-semibold tracking-wide border border-accent/20">
+                ⭐ Featured
               </Badge>
             )}
           {discountPercent && discountPercent > 0 && (
