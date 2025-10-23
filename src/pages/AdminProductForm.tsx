@@ -321,8 +321,13 @@ const handleSubmit = async (e: React.FormEvent) => {
                     onCheckedChange={(checked) => setFormData({ ...formData, inStock: checked })}
                   />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="isFeatured">Mark as Featured (Product of the Day)</Label>
+               <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="isFeatured">Mark as Featured</Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Featured products appear at the top of the store (max 3 recommended)
+                    </p>
+                  </div>
                   <Switch
                     id="isFeatured"
                     checked={formData.isFeatured}
