@@ -48,8 +48,8 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   };
 
   return (
-  <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-md transition-all duration-300">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
+  <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-sm transition-all duration-300">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-4">    
         <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
   Amilei eCollection
