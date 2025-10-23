@@ -1,6 +1,11 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { formatCurrency } from './cart';
+
+
+// Add this new function at the top, after the interfaces:
+const formatCurrencyForPDF = (amount: number): string => {
+  return `Rs. ${amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+};
 
 interface OrderItem {
   name: string;
@@ -51,8 +56,8 @@ export const generateInvoice = (data: InvoiceData) => {
     return [
       item.name,
       item.quantity.toString(),
-      formatCurrency(itemPrice),
-      formatCurrency(itemPrice * item.quantity)
+      formatCurrencyForPDF(itemPrice),
+      formatCurrencyForPDF(itemPrice * item.quantity)
     ];
   });
   
@@ -88,11 +93,11 @@ export const generateInvoice = (data: InvoiceData) => {
   
   // Subtotal
   doc.text('Subtotal:', pageWidth - 80, totalsStartY);
-  doc.text(formatCurrency(data.subtotal), pageWidth - 15, totalsStartY, { align: 'right' });
+  doc.text(formatCurrencyForPDF(data.subtotal), pageWidth - 15, totalsStartY, { align: 'right' });
   
   // Courier Charges
   doc.text('Courier & Packaging:', pageWidth - 80, totalsStartY + 7);
-  const courierText = data.courierCharges === 0 ? 'FREE' : formatCurrency(data.courierCharges);
+  const courierText = data.courierCharges === 0 ? 'FREE' : formatCurrencyForPDF(data.courierCharges);
   doc.text(courierText, pageWidth - 15, totalsStartY + 7, { align: 'right' });
   
   // Line before total
@@ -104,7 +109,7 @@ export const generateInvoice = (data: InvoiceData) => {
   doc.setFont(undefined, 'bold');
   doc.setTextColor(234, 88, 12); // Accent color
   doc.text('Total:', pageWidth - 80, totalsStartY + 20);
-  doc.text(formatCurrency(data.total), pageWidth - 15, totalsStartY + 20, { align: 'right' });
+  doc.text(formatCurrencyForPDF(data.total), pageWidth - 15, totalsStartY + 20, { align: 'right' });
   
   // GST Note
   doc.setFontSize(9);
