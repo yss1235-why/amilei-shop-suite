@@ -47,11 +47,15 @@ useEffect(() => {
     const featured = productsList.filter(p => p.isFeatured);
     const regular = productsList.filter(p => !p.isFeatured);
     
-    // Sort regular products: in-stock first, out-of-stock last
-    const sortedRegular = regular.sort((a, b) => {
-      if (a.inStock === b.inStock) return 0;
-      return a.inStock ? -1 : 1;
-    });
+    // Sort regular products: in-stock first (alphabetically), then out-of-stock (alphabetically)
+        const sortedRegular = regular.sort((a, b) => {
+          // First sort by stock status (in-stock first)
+          if (a.inStock !== b.inStock) {
+            return a.inStock ? -1 : 1;
+          }
+          // Then sort alphabetically by name within each group
+          return a.name.localeCompare(b.name);
+        });
     
     setFeaturedProducts(featured);
     setProducts(sortedRegular);
