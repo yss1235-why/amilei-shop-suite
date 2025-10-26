@@ -96,7 +96,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
           {/* Cart Icon */}
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-secondary transition-all duration-300 hover:scale-105">
-              <ShoppingCart className="h-5 w-5" />
+             <ShoppingCart className="h-6 w-6" />
               {cartCount > 0 && (
                 <Badge 
                   variant="default" 
