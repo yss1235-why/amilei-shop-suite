@@ -6,6 +6,11 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { Loader2 } from 'lucide-react';
 
+interface SizeOption {
+  name: string;
+  image?: string;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -17,7 +22,7 @@ interface Product {
   imageUrl?: string;
   inStock: boolean;
   stockCount: number;
-  sizes?: string[];
+  sizes?: (string | SizeOption)[];
   isFeatured: boolean;
 }
 
