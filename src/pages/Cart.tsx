@@ -145,10 +145,10 @@ const Cart = () => {
             {cart.map(item => {
               const itemPrice = item.salePrice || item.price;
               return (
-                <Card key={item.productId}>
+               <Card key={item.productId}>
                   <CardContent className="p-4 flex gap-4">
                     <img
-                      src={item.imageUrl}
+                      src={item.selectedSizeImage || item.imageUrl}
                       alt={item.name}
                       className="w-24 h-24 object-cover rounded-md bg-secondary"
                     />
