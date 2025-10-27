@@ -7,6 +7,11 @@ import { formatCurrency, addToCart } from '@/lib/cart';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+interface SizeOption {
+  name: string;
+  image?: string;
+}
+
 interface ProductCardProps {
   id: string;
   name: string;
@@ -18,7 +23,7 @@ interface ProductCardProps {
   imageUrl?: string;
   inStock: boolean;
   stockCount: number;
-  sizes?: string[];
+  sizes?: (string | SizeOption)[];
   isFeatured?: boolean;
 }
 
