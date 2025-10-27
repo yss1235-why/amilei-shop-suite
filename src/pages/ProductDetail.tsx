@@ -12,6 +12,11 @@ import { Minus, Plus, Loader2, ArrowLeft } from 'lucide-react';
 import { formatCurrency, addToCart } from '@/lib/cart';
 import { toast } from 'sonner';
 
+interface SizeOption {
+  name: string;
+  image?: string;
+}
+
 interface Product {
   name: string;
   description: string;
@@ -23,17 +28,17 @@ interface Product {
   imageUrl?: string; // Backward compatibility
   inStock: boolean;
   stockCount: number;
-  sizes?: string[];
+  sizes?: (string | SizeOption)[];
   isFeatured: boolean;
 }
-const ProductDetail = () => {
+  const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
- const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('');
+  const [selectedSizeImage, setSelectedSizeImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
    useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
@@ -60,7 +65,7 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id, navigate]);
 
- const handleAddToCart = () => {
+const handleAddToCart = () => {
     if (!product || !id) return;
     
     if (!product.inStock) {
@@ -76,12 +81,13 @@ const ProductDetail = () => {
     addToCart({
       productId: id,
       name: product.name,
-      imageUrl: product.images[0],
+      imageUrl: selectedSizeImage || product.images[0],
       price: product.price,
       salePrice: product.salePrice,
       courierCharges: product.courierCharges,
       stockCount: product.stockCount,
-      selectedSize: selectedSize || undefined
+      selectedSize: selectedSize || undefined,
+      selectedSizeImage: selectedSizeImage || undefined
     }, quantity);
     
     toast.success(`Added ${quantity} item(s) to cart!`);
@@ -137,7 +143,17 @@ const ProductDetail = () => {
                   </Badge>
                 </div>
               )}
-            <ImageCarousel images={product.images} productName={product.name} />
+            <ImageCarousel 
+              images={selectedSizeImage ? [selectedSizeImage] : product.images} 
+              productName={product.name} 
+            />
+            {selectedSizeImage && (
+              <div className="mt-2 text-center">
+                <Badge variant="secondary" className="text-xs">
+                  Showing image for: {selectedSize}
+                </Badge>
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -177,21 +193,29 @@ const ProductDetail = () => {
                   Select Size <span className="text-destructive">*</span>
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {product.sizes.map((size, index) => (
-                    <Button
-                      key={index}
-                      type="button"
-                      variant={selectedSize === size ? 'default' : 'outline'}
-                      className={`transition-all duration-300 font-medium ${
-                        selectedSize === size 
-                          ? 'bg-accent shadow-md scale-105' 
-                          : 'hover:border-accent/50 hover:bg-accent/5'
-                      }`}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      {size}
-                    </Button>
-                  ))}
+                  {product.sizes.map((size, index) => {
+                    const sizeName = typeof size === 'string' ? size : size.name;
+                    const sizeImage = typeof size === 'string' ? null : size.image;
+                    
+                    return (
+                      <Button
+                        key={index}
+                        type="button"
+                        variant={selectedSize === sizeName ? 'default' : 'outline'}
+                        className={`transition-all duration-300 font-medium ${
+                          selectedSize === sizeName 
+                            ? 'bg-accent shadow-md scale-105' 
+                            : 'hover:border-accent/50 hover:bg-accent/5'
+                        }`}
+                        onClick={() => {
+                          setSelectedSize(sizeName);
+                          setSelectedSizeImage(sizeImage || null);
+                        }}
+                      >
+                        {sizeName}
+                      </Button>
+                    );
+                  })}
                 </div>
               </div>
             )}
