@@ -74,18 +74,18 @@ const AdminProductForm = () => {
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
-const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    salePrice: '',
-    images: [] as string[],
-    stockCount: '',
-    courierCharges: '',
-    sizes: [] as string[],
-    inStock: true,
-    isFeatured: false
-  });
+  const [formData, setFormData] = useState({
+      name: '',
+      description: '',
+      price: '',
+      salePrice: '',
+      images: [] as string[],
+      stockCount: '',
+      courierCharges: '',
+      sizes: [] as (string | SizeOption)[],
+      inStock: true,
+      isFeatured: false
+    });
 
  useEffect(() => {
     if (isEdit && id) {
