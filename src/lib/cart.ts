@@ -1,3 +1,8 @@
+export interface SizeOption {
+  name: string;
+  image?: string;
+}
+
 export interface CartItem {
   productId: string;
   name: string;
@@ -7,6 +12,7 @@ export interface CartItem {
   courierCharges?: number;
   stockCount: number;
   selectedSize?: string;
+  selectedSizeImage?: string;
   quantity: number;
 }
 const CART_KEY = 'amilei_cart';
