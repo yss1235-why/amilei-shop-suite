@@ -5,15 +5,20 @@ export interface SizeOption {
 
 export interface CartItem {
   productId: string;
-  name: string;
-  imageUrl: string;
+  productName: string;
+  selectedVariantId: string;
+  variantName: string;
   price: number;
-  salePrice?: number;
-  courierCharges?: number;
+  image: string;
   stockCount: number;
+  courierCharges?: number;
+  quantity: number;
+  // Legacy fields for backward compatibility
+  name?: string;
+  imageUrl?: string;
+  salePrice?: number;
   selectedSize?: string;
   selectedSizeImage?: string;
-  quantity: number;
 }
 const CART_KEY = 'amilei_cart';
 
@@ -28,7 +33,11 @@ export const saveCart = (cart: CartItem[]): void => {
 
 export const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1): void => {
   const cart = getCart();
-  const existingItem = cart.find(i => i.productId === item.productId);
+  // Match by productId AND variantId (for new system) or productId only (for legacy)
+  const existingItem = cart.find(i => 
+    i.productId === item.productId && 
+    (item.selectedVariantId ? i.selectedVariantId === item.selectedVariantId : true)
+  );
   
   if (existingItem) {
     // Don't exceed stock limit
