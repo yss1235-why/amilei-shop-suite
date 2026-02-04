@@ -36,3 +36,13 @@ export interface CartItem {
   stockCount: number;
   quantity: number;
 }
+
+export interface StoreSettings {
+  storeName: string;
+  description?: string;
+  whatsappNumber: string;
+  courierCharges: number;
+  freeShippingThreshold: number;
+  gstMessage?: string;
+  logoUrl?: string;
+}

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getCart } from '@/lib/cart';
+import { useStore } from '@/contexts/StoreContext';
 import { useState, useEffect } from 'react';
 
 interface HeaderProps {
@@ -12,6 +13,7 @@ interface HeaderProps {
 }
 
 const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
+  const { settings } = useStore();
   const [cartCount, setCartCount] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
   const [localQuery, setLocalQuery] = useState(searchQuery);
@@ -30,7 +32,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
     updateCartCount();
     window.addEventListener('storage', updateCartCount);
     window.addEventListener('cartUpdated', updateCartCount);
-    
+
     return () => {
       window.removeEventListener('storage', updateCartCount);
       window.removeEventListener('cartUpdated', updateCartCount);
@@ -48,14 +50,14 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
   };
 
   return (
-  <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-sm transition-all duration-300">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-4">    
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md shadow-sm transition-all duration-300">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-4">
         <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-  Amilei eCollection
-</h1>
+            {settings?.storeName || 'Store'}
+          </h1>
         </Link>
-        
+
         {/* Desktop Search */}
         {onSearch && (
           <div className="hidden md:flex flex-1 max-w-md mx-4">
@@ -66,12 +68,12 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                 placeholder="Search products..."
                 value={localQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-               className="w-full pl-10 pr-10 bg-white border-border text-foreground placeholder:text-muted-foreground focus:bg-white focus:border-primary/40 focus:shadow-sm transition-all"
+                className="w-full pl-10 pr-10 bg-white border-border text-foreground placeholder:text-muted-foreground focus:bg-white focus:border-primary/40 focus:shadow-sm transition-all"
               />
               {localQuery && (
                 <button
                   onClick={handleClearSearch}
-                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -96,10 +98,10 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
           {/* Cart Icon */}
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-secondary transition-all duration-300 hover:scale-105">
-             <ShoppingCart className="h-6 w-6" />
+              <ShoppingCart className="h-6 w-6" />
               {cartCount > 0 && (
-                <Badge 
-                  variant="default" 
+                <Badge
+                  variant="default"
                   className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-accent shadow-md animate-pulse"
                 >
                   {cartCount}

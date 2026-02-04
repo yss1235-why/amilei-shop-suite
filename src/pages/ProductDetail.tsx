@@ -31,7 +31,7 @@ interface Product {
   sizes?: (string | SizeOption)[];
   isFeatured: boolean;
 }
-  const ProductDetail = () => {
+const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
@@ -39,10 +39,10 @@ interface Product {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedSizeImage, setSelectedSizeImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-   useEffect(() => {
+  useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
-      
+
       try {
         const productDoc = await getDoc(doc(db, 'products', id));
         if (productDoc.exists()) {
@@ -65,19 +65,19 @@ interface Product {
     fetchProduct();
   }, [id, navigate]);
 
-const handleAddToCart = () => {
+  const handleAddToCart = () => {
     if (!product || !id) return;
-    
+
     if (!product.inStock) {
       toast.error('Product out of stock');
       return;
     }
-    
+
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
       toast.error('Please select a size');
       return;
     }
-    
+
     addToCart({
       productId: id,
       name: product.name,
@@ -89,15 +89,15 @@ const handleAddToCart = () => {
       selectedSize: selectedSize || undefined,
       selectedSizeImage: selectedSizeImage || undefined
     }, quantity);
-    
+
     toast.success(`Added ${quantity} item(s) to cart!`);
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
   if (loading) {
-   return (
-  <div className="min-h-screen bg-background flex flex-col">
-    <Header />
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
@@ -112,18 +112,18 @@ const handleAddToCart = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      <main className="container mx-auto px-4 py-8">
-       <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-6 hover:bg-secondary transition-all duration-300 font-medium"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
 
-       <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      <main className="container mx-auto px-4 py-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="mb-6 hover:bg-secondary transition-all duration-300 font-medium"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+
+        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Product Image Carousel */}
           <div className="relative">
             {product.isFeatured && (
@@ -132,20 +132,18 @@ const handleAddToCart = () => {
               </Badge>
             )}
             {product.discountPercent && product.discountPercent > 0 && (
-                <Badge variant="destructive" className="absolute top-4 right-4 z-10 shadow-lg px-4 py-2 font-semibold">
-                  {product.discountPercent}% OFF
-                </Badge>
-              )}
+              <Badge variant="destructive" className="absolute top-4 right-4 z-10 shadow-lg px-4 py-2 font-semibold">
+                {product.discountPercent}% OFF
+              </Badge>
+            )}
             {!product.inStock && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/90 backdrop-blur-md rounded-lg">
-                  <Badge variant="secondary" className="text-lg px-8 py-3.5 shadow-xl font-semibold border border-border">
-                    Out of Stock
-                  </Badge>
-                </div>
-              )}
-            <ImageCarousel 
-              images={selectedSizeImage ? [selectedSizeImage] : product.images} 
-              productName={product.name} 
+              <Badge variant="destructive" className="absolute top-4 left-4 z-10 shadow-lg px-4 py-2 font-semibold">
+                Out of Stock
+              </Badge>
+            )}
+            <ImageCarousel
+              images={selectedSizeImage ? [selectedSizeImage] : product.images}
+              productName={product.name}
             />
             {selectedSizeImage && (
               <div className="mt-2 text-center">
@@ -159,7 +157,7 @@ const handleAddToCart = () => {
           {/* Product Info */}
           <div className="flex flex-col">
             <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-            
+
             <div className="flex items-center gap-3 mb-6">
               <span className="text-3xl font-bold text-accent">
                 {formatCurrency(displayPrice)}
@@ -171,7 +169,7 @@ const handleAddToCart = () => {
               )}
             </div>
 
-           <Card className="mb-6 bg-white shadow-sm">
+            <Card className="mb-6 bg-white shadow-sm">
               <CardContent className="p-4">
                 <p className="text-muted-foreground whitespace-pre-wrap">
                   {product.description}
@@ -186,7 +184,7 @@ const handleAddToCart = () => {
                 </p>
               </div>
             )}
-{/* Size Selector */}
+            {/* Size Selector */}
             {product.inStock && product.sizes && product.sizes.length > 0 && (
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">
@@ -196,17 +194,16 @@ const handleAddToCart = () => {
                   {product.sizes.map((size, index) => {
                     const sizeName = typeof size === 'string' ? size : size.name;
                     const sizeImage = typeof size === 'string' ? null : size.image;
-                    
+
                     return (
                       <Button
                         key={index}
                         type="button"
                         variant={selectedSize === sizeName ? 'default' : 'outline'}
-                        className={`transition-all duration-300 font-medium ${
-                          selectedSize === sizeName 
-                            ? 'bg-accent shadow-md scale-105' 
+                        className={`transition-all duration-300 font-medium ${selectedSize === sizeName
+                            ? 'bg-accent shadow-md scale-105'
                             : 'hover:border-accent/50 hover:bg-accent/5'
-                        }`}
+                          }`}
                         onClick={() => {
                           setSelectedSize(sizeName);
                           setSelectedSizeImage(sizeImage || null);
@@ -225,38 +222,38 @@ const handleAddToCart = () => {
                 <label className="block text-sm font-medium mb-2">Quantity</label>
                 <div className="flex items-center gap-3">
                   <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
                   <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
-                 <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
-                  className="hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
+                    className="hover:bg-accent/10 hover:border-accent/50 transition-all duration-300"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             )}
 
             {/* Add to Cart Button */}
-           <Button
-            onClick={handleAddToCart}
-            disabled={!product.inStock}
-            size="lg"
-            className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent shadow-md hover:shadow-lg transition-all duration-300 font-semibold tracking-wide"
-          >
-            {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-          </Button>
+            <Button
+              onClick={handleAddToCart}
+              disabled={!product.inStock}
+              size="lg"
+              className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent shadow-md hover:shadow-lg transition-all duration-300 font-semibold tracking-wide"
+            >
+              {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+            </Button>
           </div>
         </div>
-    </main>
+      </main>
       <Footer />
     </div>
   );

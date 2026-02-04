@@ -38,10 +38,10 @@ const Order = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [whatsappNumber, setWhatsappNumber] = useState('');
-  const [storeName, setStoreName] = useState('Amilei eCollection');
+  const [storeName, setStoreName] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
 
-useEffect(() => {
+  useEffect(() => {
     const checkAdmin = async () => {
       if (user) {
         const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
@@ -66,12 +66,12 @@ useEffect(() => {
           toast.error('Order not found');
         }
 
-      // Fetch settings for WhatsApp and Store Name
+        // Fetch settings for WhatsApp and Store Name
         const settingsDoc = await getDoc(doc(db, 'settings', 'store'));
         if (settingsDoc.exists()) {
           const settings = settingsDoc.data();
           setWhatsappNumber(settings.whatsappNumber || '');
-          setStoreName(settings.storeName || 'Amilei eCollection');
+          setStoreName(settings.storeName || '');
         }
       } catch (error) {
         console.error('Error fetching order:', error);
@@ -92,90 +92,90 @@ useEffect(() => {
     window.open(whatsappUrl, '_blank');
   };
 
- const handleGenerateInvoice = async () => {
-  if (!order || !user) return;
+  const handleGenerateInvoice = async () => {
+    if (!order || !user) return;
 
-  try {
-    // Check if stock already reduced
-    const ordersRef = collection(db, 'orders');
-    const q = query(ordersRef, where('orderId', '==', order.orderId));
-    const snapshot = await getDocs(q);
-    
-    if (snapshot.empty) {
-      toast.error('Order not found');
-      return;
-    }
-    
-    const orderDoc = snapshot.docs[0];
-    const orderData = orderDoc.data();
-    
-    // If stock already reduced, show error
-    if (orderData.stockReduced) {
-      toast.error('Stock already reduced for this order. Invoice may have been generated before.');
-      return;
-    }
-    
-    // Reduce stock for each item BEFORE generating invoice
-    const { reduceProductStock } = await import('@/lib/cart');
-    
-    for (const item of order.items) {
-      try {
-        await reduceProductStock(item.productId, item.quantity);
-      } catch (error) {
-        console.error(`Error reducing stock for ${item.name}:`, error);
-        toast.error(`Failed to reduce stock for ${item.name}`);
-        return; // Stop if any stock reduction fails
+    try {
+      // Check if stock already reduced
+      const ordersRef = collection(db, 'orders');
+      const q = query(ordersRef, where('orderId', '==', order.orderId));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        toast.error('Order not found');
+        return;
       }
+
+      const orderDoc = snapshot.docs[0];
+      const orderData = orderDoc.data();
+
+      // If stock already reduced, show error
+      if (orderData.stockReduced) {
+        toast.error('Stock already reduced for this order. Invoice may have been generated before.');
+        return;
+      }
+
+      // Reduce stock for each item BEFORE generating invoice
+      const { reduceProductStock } = await import('@/lib/cart');
+
+      for (const item of order.items) {
+        try {
+          await reduceProductStock(item.productId, item.quantity);
+        } catch (error) {
+          console.error(`Error reducing stock for ${item.name}:`, error);
+          toast.error(`Failed to reduce stock for ${item.name}`);
+          return; // Stop if any stock reduction fails
+        }
+      }
+
+      // Generate PDF
+      generateInvoice({
+        orderId: order.orderId,
+        items: order.items,
+        subtotal: order.subtotal,
+        courierCharges: order.courierCharges,
+        total: order.total,
+        createdAt: order.createdAt,
+        storeName,
+        whatsappNumber
+      });
+
+      // Save invoice record to Firestore
+      const invoiceId = `INV-${Date.now()}`;
+      await addDoc(collection(db, 'invoices'), {
+        invoiceId,
+        orderId: order.orderId,
+        generatedBy: user.email,
+        generatedAt: new Date(),
+        orderTotal: order.total,
+        orderItems: order.items.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.salePrice || item.price
+        }))
+      });
+
+      // Update order to mark invoice as generated AND stock reduced
+      const orderDocRef = doc(db, 'orders', orderDoc.id);
+      await updateDoc(orderDocRef, {
+        invoiceGenerated: true,
+        invoiceGeneratedAt: new Date(),
+        stockReduced: true,  // NEW FIELD
+        stockReducedAt: new Date()  // NEW FIELD
+      });
+
+      toast.success('Invoice generated and stock updated successfully!');
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      toast.error('Failed to generate invoice');
     }
-    
-    // Generate PDF
-    generateInvoice({
-      orderId: order.orderId,
-      items: order.items,
-      subtotal: order.subtotal,
-      courierCharges: order.courierCharges,
-      total: order.total,
-      createdAt: order.createdAt,
-      storeName,
-      whatsappNumber
-    });
+  };
 
-    // Save invoice record to Firestore
-    const invoiceId = `INV-${Date.now()}`;
-    await addDoc(collection(db, 'invoices'), {
-      invoiceId,
-      orderId: order.orderId,
-      generatedBy: user.email,
-      generatedAt: new Date(),
-      orderTotal: order.total,
-      orderItems: order.items.map(item => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.salePrice || item.price
-      }))
-    });
-
-    // Update order to mark invoice as generated AND stock reduced
-    const orderDocRef = doc(db, 'orders', orderDoc.id);
-    await updateDoc(orderDocRef, {
-      invoiceGenerated: true,
-      invoiceGeneratedAt: new Date(),
-      stockReduced: true,  // NEW FIELD
-      stockReducedAt: new Date()  // NEW FIELD
-    });
-
-    toast.success('Invoice generated and stock updated successfully!');
-  } catch (error) {
-    console.error('Error generating invoice:', error);
-    toast.error('Failed to generate invoice');
-  }
-};
-    
 
   if (loading) {
     return (
-  <div className="min-h-screen bg-background flex flex-col">
-    <Header />
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
         <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
@@ -184,9 +184,9 @@ useEffect(() => {
   }
 
   if (!order) {
-   return (
-  <div className="min-h-screen bg-background flex flex-col">
-    <Header />
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h1 className="text-2xl font-bold mb-2">Order Not Found</h1>
@@ -202,8 +202,8 @@ useEffect(() => {
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
         <Card className="bg-white shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5 text-accent" />
               Order Details
             </CardTitle>
@@ -253,7 +253,7 @@ useEffect(() => {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-semibold">{formatCurrency(order.subtotal)}</span>
               </div>
-             <div className="flex justify-between">
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">Courier and Packaging Charges</span>
                 <span className="font-semibold">
                   {order.courierCharges === 0 ? (
@@ -273,7 +273,7 @@ useEffect(() => {
               </p>
             </div>
 
-           {/* Action Buttons - Show different buttons for Admin vs User */}
+            {/* Action Buttons - Show different buttons for Admin vs User */}
             {isAdmin ? (
               // Admin View: Generate Invoice Button
               <Button
@@ -299,7 +299,7 @@ useEffect(() => {
             )}
           </CardContent>
         </Card>
-     </main>
+      </main>
       <Footer />
     </div>
   );
