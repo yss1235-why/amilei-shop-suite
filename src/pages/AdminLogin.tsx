@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
+import { useStore } from '@/contexts/StoreContext';
 
 // 🔧 Get admin email from environment variable
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
@@ -14,6 +15,7 @@ const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 const AdminLogin = () => {
   const [user, loading] = useAuthState(auth);
   const navigate = useNavigate();
+  const { settings } = useStore();
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -36,7 +38,7 @@ const AdminLogin = () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      
+
       // Check if user is the admin
       if (result.user.email !== ADMIN_EMAIL) {
         toast.error('You are not authorized as an admin');
@@ -64,7 +66,7 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Amilei Admin
+            {settings?.storeName ? `${settings.storeName} Admin` : 'Admin Login'}
           </CardTitle>
           <CardDescription>
             Sign in with your Google account to manage your store

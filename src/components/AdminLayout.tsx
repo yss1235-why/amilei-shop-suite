@@ -6,6 +6,7 @@ import { signOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { Loader2, LogOut, LayoutDashboard, Package, Settings, ShoppingCart, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { useStore } from '@/contexts/StoreContext';
 
 // Get admin email from environment variable
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
@@ -24,13 +25,14 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { settings } = useStore();
 
   useEffect(() => {
     const checkAdmin = async () => {
       console.log('🔍 Checking admin access...');
       console.log('User:', user?.email);
       console.log('Admin Email:', ADMIN_EMAIL);
-      
+
       if (!loading) {
         if (!user) {
           console.log('❌ No user logged in, redirecting to login');
@@ -74,12 +76,13 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   }
 
   const navItems = [
-  { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/admin/products', icon: Package, label: 'Products' },
-  { path: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
-  { path: '/admin/invoices', icon: FileText, label: 'Invoices' },
-  { path: '/admin/settings', icon: Settings, label: 'Settings' },
-];
+    { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/admin/products', icon: Package, label: 'Products' },
+    { path: '/admin/categories', icon: Package, label: 'Categories' },
+    { path: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { path: '/admin/invoices', icon: FileText, label: 'Invoices' },
+    { path: '/admin/settings', icon: Settings, label: 'Settings' },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,7 +91,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/admin/dashboard" className="flex items-center space-x-2">
             <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Amilei Admin
+              {settings?.storeName ? `${settings.storeName} Admin` : 'Admin'}
             </h1>
           </Link>
 
@@ -100,11 +103,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-accent'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className={`flex items-center gap-2 text-sm font-medium transition-colors ${isActive
+                    ? 'text-accent'
+                    : 'text-muted-foreground hover:text-foreground'
+                    }`}
                 >
                   <Icon className="h-4 w-4" />
                   {item.label}
@@ -135,11 +137,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 text-sm font-medium whitespace-nowrap px-3 py-2 rounded-md transition-colors ${
-                  isActive
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:bg-secondary'
-                }`}
+                className={`flex items-center gap-2 text-sm font-medium whitespace-nowrap px-3 py-2 rounded-md transition-colors ${isActive
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-secondary'
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 {item.label}

@@ -18,7 +18,9 @@ const AdminSettings = () => {
     whatsappNumber: '',
     courierCharges: '100',
     freeShippingThreshold: '2000',
-    gstMessage: 'GST not included'
+    gstMessage: 'GST not included',
+    cloudinaryCloudName: '',
+    cloudinaryUploadPreset: ''
   });
 
   useEffect(() => {
@@ -32,7 +34,9 @@ const AdminSettings = () => {
             whatsappNumber: data.whatsappNumber || '',
             courierCharges: data.courierCharges?.toString() || '100',
             freeShippingThreshold: data.freeShippingThreshold?.toString() || '2000',
-            gstMessage: data.gstMessage || 'GST not included'
+            gstMessage: data.gstMessage || 'GST not included',
+            cloudinaryCloudName: data.cloudinaryCloudName || '',
+            cloudinaryUploadPreset: data.cloudinaryUploadPreset || ''
           });
         }
       } catch (error) {
@@ -56,7 +60,9 @@ const AdminSettings = () => {
         whatsappNumber: formData.whatsappNumber.trim(),
         courierCharges: parseInt(formData.courierCharges) || 100,
         freeShippingThreshold: parseInt(formData.freeShippingThreshold) || 2000,
-        gstMessage: formData.gstMessage.trim()
+        gstMessage: formData.gstMessage.trim(),
+        cloudinaryCloudName: formData.cloudinaryCloudName.trim(),
+        cloudinaryUploadPreset: formData.cloudinaryUploadPreset.trim()
       };
 
       await setDoc(doc(db, 'settings', 'store'), settingsData);
@@ -177,6 +183,41 @@ const AdminSettings = () => {
                   rows={2}
                   required
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Cloudinary Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Image Upload Settings</CardTitle>
+              <CardDescription>Configure Cloudinary for image uploads</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="cloudinaryCloudName">Cloudinary Cloud Name</Label>
+                <Input
+                  id="cloudinaryCloudName"
+                  value={formData.cloudinaryCloudName}
+                  onChange={(e) => setFormData({ ...formData, cloudinaryCloudName: e.target.value })}
+                  placeholder="your-cloud-name"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Find this in your Cloudinary Dashboard
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cloudinaryUploadPreset">Cloudinary Upload Preset</Label>
+                <Input
+                  id="cloudinaryUploadPreset"
+                  value={formData.cloudinaryUploadPreset}
+                  onChange={(e) => setFormData({ ...formData, cloudinaryUploadPreset: e.target.value })}
+                  placeholder="your-upload-preset"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Create an unsigned upload preset in Cloudinary Settings
+                </p>
               </div>
             </CardContent>
           </Card>

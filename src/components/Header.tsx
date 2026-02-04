@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Search, X } from 'lucide-react';
+import { ShoppingCart, Search, X, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,7 +54,7 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
       <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-4">
         <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            {settings?.storeName || 'Store'}
+            {settings?.storeName}
           </h1>
         </Link>
 
@@ -107,6 +107,13 @@ const Header = ({ onSearch, searchQuery = '' }: HeaderProps) => {
                   {cartCount}
                 </Badge>
               )}
+            </Button>
+          </Link>
+
+          {/* Admin Login Icon */}
+          <Link to="/admin">
+            <Button variant="ghost" size="icon" className="text-foreground hover:bg-secondary transition-all duration-300 hover:scale-105">
+              <User className="h-6 w-6" />
             </Button>
           </Link>
         </div>

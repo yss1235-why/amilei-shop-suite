@@ -45,4 +45,14 @@ export interface StoreSettings {
   freeShippingThreshold: number;
   gstMessage?: string;
   logoUrl?: string;
+  // Cloudinary settings
+  cloudinaryCloudName?: string;
+  cloudinaryUploadPreset?: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl?: string;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2, Trash2 } from 'lucide-react';
+import { useStore } from '@/contexts/StoreContext';
 
 interface CloudinaryUploadProps {
   onUpload: (urls: string[]) => void;
@@ -10,6 +11,7 @@ interface CloudinaryUploadProps {
 }
 
 const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }: CloudinaryUploadProps) => {
+  const { settings } = useStore();
   const [uploading, setUploading] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   useEffect(() => {
@@ -24,12 +26,13 @@ const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }:
     };
   }, []);
 
- const handleUpload = () => {
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  const handleUpload = () => {
+    // Use settings from context, fallback to env vars
+    const cloudName = settings?.cloudinaryCloudName || import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = settings?.cloudinaryUploadPreset || import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
-      console.error('Cloudinary configuration missing');
+      console.error('Cloudinary configuration missing. Please configure in Admin Settings or .env file.');
       return;
     }
 
@@ -95,7 +98,7 @@ const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }:
   const handleDelete = (index: number) => {
     onDelete?.(index);
   };
- return (
+  return (
     <div className="space-y-4">
       <Button
         type="button"

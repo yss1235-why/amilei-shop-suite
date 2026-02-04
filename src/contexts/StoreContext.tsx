@@ -16,6 +16,8 @@ const defaultSettings: StoreSettings = {
     freeShippingThreshold: 2000,
     gstMessage: 'GST not included',
     logoUrl: '',
+    cloudinaryCloudName: '',
+    cloudinaryUploadPreset: '',
 };
 
 const StoreContext = createContext<StoreContextType>({
@@ -47,6 +49,8 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
                         freeShippingThreshold: data.freeShippingThreshold ?? 2000,
                         gstMessage: data.gstMessage || 'GST not included',
                         logoUrl: data.logoUrl || '',
+                        cloudinaryCloudName: data.cloudinaryCloudName || '',
+                        cloudinaryUploadPreset: data.cloudinaryUploadPreset || '',
                     });
                 } else {
                     setSettings(defaultSettings);
