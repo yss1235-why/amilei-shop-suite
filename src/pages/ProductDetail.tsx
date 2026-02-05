@@ -74,23 +74,31 @@ const ProductDetail = () => {
     }
 
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      toast.error('Please select a size');
+      toast.error('Please select a variant');
       return;
     }
 
+    // Generate a unique variant ID for cart distinction
+    const variantId = selectedSize ? `${id}-${selectedSize}` : id;
+
     addToCart({
       productId: id,
+      productName: product.name,
+      selectedVariantId: variantId,
+      variantName: selectedSize || 'Default',
+      price: product.salePrice || product.price,
+      image: selectedSizeImage || product.images[0],
+      stockCount: product.stockCount,
+      courierCharges: product.courierCharges,
+      // Legacy fields for backward compatibility
       name: product.name,
       imageUrl: selectedSizeImage || product.images[0],
-      price: product.price,
       salePrice: product.salePrice,
-      courierCharges: product.courierCharges,
-      stockCount: product.stockCount,
       selectedSize: selectedSize || undefined,
       selectedSizeImage: selectedSizeImage || undefined
     }, quantity);
 
-    toast.success(`Added ${quantity} item(s) to cart!`);
+    toast.success(`Added ${quantity} ${selectedSize || ''} to cart!`);
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
@@ -201,8 +209,8 @@ const ProductDetail = () => {
                         type="button"
                         variant={selectedSize === sizeName ? 'default' : 'outline'}
                         className={`transition-all duration-300 font-medium ${selectedSize === sizeName
-                            ? 'bg-accent shadow-md scale-105'
-                            : 'hover:border-accent/50 hover:bg-accent/5'
+                          ? 'bg-accent shadow-md scale-105'
+                          : 'hover:border-accent/50 hover:bg-accent/5'
                           }`}
                         onClick={() => {
                           setSelectedSize(sizeName);

@@ -11,55 +11,142 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2, X, Plus } from 'lucide-react';
+import { ArrowLeft, Loader2, X, Plus, Upload, Trash2, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
-// Size Manager Component
-const SizeManager = ({ sizes, onSizesChange }: { sizes: string[]; onSizesChange: (sizes: string[]) => void }) => {
+
+// Interface for size options with optional image
+interface SizeOption {
+  name: string;
+  image?: string;
+}
+
+// Size Manager Component with per-variant image uploads
+const SizeManager = ({
+  sizes,
+  onSizesChange
+}: {
+  sizes: (string | SizeOption)[];
+  onSizesChange: (sizes: SizeOption[]) => void;
+}) => {
   const [newSize, setNewSize] = useState('');
 
+  // Normalize sizes to always be SizeOption objects
+  const normalizedSizes: SizeOption[] = sizes.map((s) =>
+    typeof s === 'string' ? { name: s, image: undefined } : s
+  );
+
   const handleAddSize = () => {
-    if (newSize.trim() && !sizes.includes(newSize.trim())) {
-      onSizesChange([...sizes, newSize.trim()]);
+    if (newSize.trim() && !normalizedSizes.some((s) => s.name === newSize.trim())) {
+      onSizesChange([...normalizedSizes, { name: newSize.trim(), image: undefined }]);
       setNewSize('');
     }
   };
 
   const handleRemoveSize = (index: number) => {
-    onSizesChange(sizes.filter((_, i) => i !== index));
+    onSizesChange(normalizedSizes.filter((_, i) => i !== index));
+  };
+
+  const handleImageUpload = (index: number, urls: string[]) => {
+    if (urls.length > 0) {
+      const updated = [...normalizedSizes];
+      updated[index] = { ...updated[index], image: urls[urls.length - 1] };
+      onSizesChange(updated);
+      toast.success(`Image linked to "${updated[index].name}"`);
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const updated = [...normalizedSizes];
+    updated[index] = { ...updated[index], image: undefined };
+    onSizesChange(updated);
+    toast.success('Variant image removed');
   };
 
   return (
-    <div className="space-y-3">
-      <Label>Product Sizes (Optional)</Label>
-      <p className="text-sm text-muted-foreground">
-        Add sizes like "Small", "Medium", "4 inch", etc. Leave empty if no size variants.
-      </p>
-      
+    <div className="space-y-4">
+      <div>
+        <Label>Product Variants (Optional)</Label>
+        <p className="text-sm text-muted-foreground">
+          Add variants like "Red", "Blue", "Small", etc. You can upload an image for each variant.
+        </p>
+      </div>
+
+      {/* Add new variant input */}
       <div className="flex gap-2">
         <Input
           value={newSize}
           onChange={(e) => setNewSize(e.target.value)}
-          placeholder="e.g., Small, 4 inch, Premium"
+          placeholder="e.g., Red, Small, Premium"
           onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSize())}
         />
         <Button type="button" onClick={handleAddSize} variant="outline">
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 mr-1" />
+          Add
         </Button>
       </div>
 
-      {sizes.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {sizes.map((size, index) => (
-            <Badge key={index} variant="secondary" className="text-sm px-3 py-1">
-              {size}
-              <button
+      {/* List of variants with image upload */}
+      {normalizedSizes.length > 0 && (
+        <div className="space-y-3 border rounded-lg p-3 bg-secondary/30">
+          {normalizedSizes.map((size, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 p-2 bg-background rounded-md border"
+            >
+              {/* Variant Image Thumbnail or Upload Button */}
+              {size.image ? (
+                <div className="relative w-16 h-16 rounded-md overflow-hidden bg-secondary flex-shrink-0 group">
+                  <img
+                    src={size.image}
+                    alt={size.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="h-4 w-4 text-white" />
+                  </button>
+                </div>
+              ) : (
+                <CloudinaryUpload
+                  onUpload={(urls) => handleImageUpload(index, urls)}
+                  currentImages={[]}
+                  renderTrigger={(onClick, uploading) => (
+                    <button
+                      type="button"
+                      onClick={onClick}
+                      disabled={uploading}
+                      className="w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center text-muted-foreground hover:border-accent hover:text-accent transition-colors flex-shrink-0"
+                    >
+                      {uploading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <>
+                          <ImageIcon className="h-5 w-5" />
+                          <span className="text-[10px] mt-0.5">Upload</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                />
+              )}
+
+              {/* Variant Name */}
+              <span className="flex-1 font-medium">{size.name}</span>
+
+              {/* Delete Variant Button */}
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => handleRemoveSize(index)}
-                className="ml-2 hover:text-destructive"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           ))}
         </div>
       )}
@@ -75,19 +162,19 @@ const AdminProductForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-      name: '',
-      description: '',
-      price: '',
-      salePrice: '',
-      images: [] as string[],
-      stockCount: '',
-      courierCharges: '',
-      sizes: [] as (string | SizeOption)[],
-      inStock: true,
-      isFeatured: false
-    });
+    name: '',
+    description: '',
+    price: '',
+    salePrice: '',
+    images: [] as string[],
+    stockCount: '',
+    courierCharges: '',
+    sizes: [] as (string | SizeOption)[],
+    inStock: true,
+    isFeatured: false
+  });
 
- useEffect(() => {
+  useEffect(() => {
     if (isEdit && id) {
       const fetchProduct = async () => {
         try {
@@ -96,8 +183,8 @@ const AdminProductForm = () => {
             const data = productDoc.data();
             // Handle backward compatibility
             const images = data.images || (data.imageUrl ? [data.imageUrl] : []);
-            
-           setFormData({
+
+            setFormData({
               name: data.name || '',
               description: data.description || '',
               price: data.price?.toString() || '',
@@ -118,7 +205,7 @@ const AdminProductForm = () => {
       fetchProduct();
     }
   }, [isEdit, id]);
- const handleImageUpload = (urls: string[]) => {
+  const handleImageUpload = (urls: string[]) => {
     setFormData({ ...formData, images: urls });
     toast.success('Images uploaded successfully');
   };
@@ -133,9 +220,9 @@ const AdminProductForm = () => {
     toast.success('Image removed');
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.price || formData.images.length === 0 || !formData.stockCount) {
       toast.error('Please fill in all required fields including at least one image');
       return;
@@ -147,8 +234,8 @@ const handleSubmit = async (e: React.FormEvent) => {
       const salePrice = formData.salePrice ? parseFloat(formData.salePrice) : undefined;
       const stockCount = parseInt(formData.stockCount);
       // Only set courierCharges if a value is provided, otherwise undefined (will use default)
-      const courierCharges = formData.courierCharges && formData.courierCharges.trim() !== '' 
-        ? parseFloat(formData.courierCharges) 
+      const courierCharges = formData.courierCharges && formData.courierCharges.trim() !== ''
+        ? parseFloat(formData.courierCharges)
         : undefined;
 
       // Calculate discount percentage
@@ -157,7 +244,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         discountPercent = Math.round(((price - salePrice) / price) * 100);
       }
 
- const productData = {
+      const productData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price,
@@ -275,7 +362,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   />
                 </div>
                 {/* 🔧 NEW FIELD */}
-               <div className="space-y-2">
+                <div className="space-y-2">
                   <Label htmlFor="courierCharges">
                     Courier and Packaging Charges (₹)
                     <span className="text-xs text-muted-foreground ml-1">(Optional)</span>
@@ -295,7 +382,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
               </div>
 
-           {/* Sizes */}
+              {/* Sizes */}
               <SizeManager
                 sizes={formData.sizes}
                 onSizesChange={(sizes) => setFormData({ ...formData, sizes })}
@@ -321,7 +408,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     onCheckedChange={(checked) => setFormData({ ...formData, inStock: checked })}
                   />
                 </div>
-               <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="isFeatured">Mark as Featured</Label>
                     <p className="text-xs text-muted-foreground mt-1">

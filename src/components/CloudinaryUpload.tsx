@@ -8,9 +8,18 @@ interface CloudinaryUploadProps {
   currentImages?: string[];
   onReorder?: (images: string[]) => void;
   onDelete?: (index: number) => void;
+  maxFiles?: number;
+  renderTrigger?: (onClick: () => void, uploading: boolean) => React.ReactNode;
 }
 
-const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }: CloudinaryUploadProps) => {
+const CloudinaryUpload = ({
+  onUpload,
+  currentImages = [],
+  onReorder,
+  onDelete,
+  maxFiles = 5,
+  renderTrigger
+}: CloudinaryUploadProps) => {
   const { settings } = useStore();
   const [uploading, setUploading] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -36,6 +45,10 @@ const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }:
       return;
     }
 
+    // Generate dynamic folder name from store name
+    const storeName = settings?.storeName || 'store';
+    const folderName = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-products';
+
     setUploading(true);
     const uploadedUrls: string[] = [];
 
@@ -45,11 +58,11 @@ const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }:
         cloudName,
         uploadPreset,
         sources: ['local', 'url', 'camera'],
-        multiple: true, // Enable multiple uploads
-        maxFiles: 5,
+        multiple: maxFiles > 1,
+        maxFiles: maxFiles,
         maxFileSize: 5000000, // 5MB
         clientAllowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
-        folder: 'amilei-products',
+        folder: folderName,
       },
       (error: any, result: any) => {
         if (error) {
@@ -98,6 +111,11 @@ const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }:
   const handleDelete = (index: number) => {
     onDelete?.(index);
   };
+  // If a custom trigger is provided, use it; otherwise, render the default button
+  if (renderTrigger) {
+    return renderTrigger(handleUpload, uploading);
+  }
+
   return (
     <div className="space-y-4">
       <Button
@@ -115,7 +133,7 @@ const CloudinaryUpload = ({ onUpload, currentImages = [], onReorder, onDelete }:
         ) : (
           <>
             <Upload className="mr-2 h-4 w-4" />
-            Upload Images (Max 5)
+            Upload Images (Max {maxFiles})
           </>
         )}
       </Button>
