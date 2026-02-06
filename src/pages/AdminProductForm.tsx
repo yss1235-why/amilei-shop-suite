@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useStore } from '@/contexts/StoreContext';
 import AdminLayout from '@/components/AdminLayout';
 import CloudinaryUpload from '@/components/CloudinaryUpload';
 import { Button } from '@/components/ui/button';
@@ -158,7 +159,12 @@ const AdminProductForm = () => {
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { settings: storeSettings } = useStore();
   const isEdit = !!id;
+
+  // Get store defaults for display
+  const defaultCourier = storeSettings?.courierCharges ?? 100;
+  const freeShippingThreshold = storeSettings?.freeShippingThreshold ?? 2000;
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -231,12 +237,13 @@ const AdminProductForm = () => {
 
     try {
       const price = parseFloat(formData.price);
-      const salePrice = formData.salePrice ? parseFloat(formData.salePrice) : undefined;
       const stockCount = parseInt(formData.stockCount);
-      // Only set courierCharges if a value is provided, otherwise undefined (will use default)
+
+      // Parse optional values (don't set to undefined - Firebase rejects it)
+      const salePrice = formData.salePrice ? parseFloat(formData.salePrice) : null;
       const courierCharges = formData.courierCharges && formData.courierCharges.trim() !== ''
         ? parseFloat(formData.courierCharges)
-        : undefined;
+        : null;
 
       // Calculate discount percentage
       let discountPercent = 0;
@@ -244,19 +251,27 @@ const AdminProductForm = () => {
         discountPercent = Math.round(((price - salePrice) / price) * 100);
       }
 
-      const productData = {
+      // Build productData - only include optional fields if they have values
+      const productData: Record<string, unknown> = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price,
-        salePrice,
         discountPercent,
         images: formData.images,
         stockCount,
-        courierCharges,
         sizes: formData.sizes,
         inStock: formData.inStock,
         isFeatured: formData.isFeatured
       };
+
+      // Only add optional fields if they have values (Firebase doesn't accept undefined)
+      if (salePrice !== null) {
+        productData.salePrice = salePrice;
+      }
+      if (courierCharges !== null) {
+        productData.courierCharges = courierCharges;
+      }
+
 
       if (isEdit && id) {
         await updateDoc(doc(db, 'products', id), productData);
@@ -361,7 +376,7 @@ const AdminProductForm = () => {
                     required
                   />
                 </div>
-                {/* 🔧 NEW FIELD */}
+                {/* Courier Charges Field with Store Defaults */}
                 <div className="space-y-2">
                   <Label htmlFor="courierCharges">
                     Courier and Packaging Charges (₹)
@@ -374,11 +389,16 @@ const AdminProductForm = () => {
                     step="1"
                     value={formData.courierCharges}
                     onChange={(e) => setFormData({ ...formData, courierCharges: e.target.value })}
-                    placeholder="Default store rate"
+                    placeholder={`₹${defaultCourier} (store default)`}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Leave empty to use default store courier and packaging charges
-                  </p>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>
+                      Leave empty to use store default: <strong>₹{defaultCourier}</strong>
+                    </p>
+                    <p className="text-green-600 dark:text-green-400">
+                      💡 Courier is FREE for orders ≥ ₹{freeShippingThreshold.toLocaleString('en-IN')}
+                    </p>
+                  </div>
                 </div>
               </div>
 
