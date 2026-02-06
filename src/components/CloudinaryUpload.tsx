@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2, Trash2 } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
+import { compressImage, formatFileSize } from '@/lib/imageCompression';
+import { toast } from 'sonner';
 
 interface CloudinaryUploadProps {
   onUpload: (urls: string[]) => void;
@@ -23,68 +25,98 @@ const CloudinaryUpload = ({
   const { settings } = useStore();
   const [uploading, setUploading] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  useEffect(() => {
-    // Load Cloudinary Upload Widget script
-    const script = document.createElement('script');
-    script.src = 'https://upload-widget.cloudinary.com/global/all.js';
-    script.async = true;
-    document.body.appendChild(script);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
 
-  const handleUpload = () => {
-    // Use settings from context, fallback to env vars
+  const uploadToCloudinary = async (file: File): Promise<string> => {
     const cloudName = settings?.cloudinaryCloudName || import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = settings?.cloudinaryUploadPreset || import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
     if (!cloudName || !uploadPreset) {
-      console.error('Cloudinary configuration missing. Please configure in Admin Settings or .env file.');
-      return;
+      throw new Error('Cloudinary configuration missing. Please configure in Admin Settings or .env file.');
     }
 
     // Generate dynamic folder name from store name
     const storeName = settings?.storeName || 'store';
     const folderName = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-products';
 
-    setUploading(true);
-    const uploadedUrls: string[] = [];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('folder', folderName);
 
-    // @ts-ignore - Cloudinary widget is loaded via script
-    const widget = window.cloudinary.createUploadWidget(
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
       {
-        cloudName,
-        uploadPreset,
-        sources: ['local', 'url', 'camera'],
-        multiple: maxFiles > 1,
-        maxFiles: maxFiles,
-        maxFileSize: 5000000, // 5MB
-        clientAllowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
-        folder: folderName,
-      },
-      (error: any, result: any) => {
-        if (error) {
-          console.error('Upload error:', error);
-          setUploading(false);
-          return;
-        }
-
-        if (result.event === 'success') {
-          uploadedUrls.push(result.info.secure_url);
-        }
-
-        if (result.event === 'close') {
-          if (uploadedUrls.length > 0) {
-            onUpload([...currentImages, ...uploadedUrls]);
-          }
-          setUploading(false);
-        }
+        method: 'POST',
+        body: formData,
       }
     );
 
-    widget.open();
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Upload failed');
+    }
+
+    const data = await response.json();
+    return data.secure_url;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    // Limit number of files
+    const remainingSlots = maxFiles - currentImages.length;
+    if (remainingSlots <= 0) {
+      toast.error(`Maximum ${maxFiles} images allowed`);
+      return;
+    }
+
+    const filesToUpload = files.slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      toast.warning(`Only uploading ${remainingSlots} image(s). Maximum ${maxFiles} images allowed.`);
+    }
+
+    setUploading(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (const file of filesToUpload) {
+        // Compress image before upload
+        const originalSize = file.size;
+        const compressedFile = await compressImage(file);
+        const compressedSize = compressedFile.size;
+
+        // Log compression stats (optional, for debugging)
+        if (originalSize !== compressedSize) {
+          console.log(
+            `Compressed ${file.name}: ${formatFileSize(originalSize)} → ${formatFileSize(compressedSize)}`
+          );
+        }
+
+        // Upload to Cloudinary
+        const url = await uploadToCloudinary(compressedFile);
+        uploadedUrls.push(url);
+      }
+
+      if (uploadedUrls.length > 0) {
+        onUpload([...currentImages, ...uploadedUrls]);
+        toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to upload image');
+    } finally {
+      setUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleDragStart = (index: number) => {
@@ -111,16 +143,35 @@ const CloudinaryUpload = ({
   const handleDelete = (index: number) => {
     onDelete?.(index);
   };
+
+  // Hidden file input
+  const fileInput = (
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept="image/png,image/jpeg,image/jpg,image/webp"
+      multiple={maxFiles > 1}
+      onChange={handleFileChange}
+      className="hidden"
+    />
+  );
+
   // If a custom trigger is provided, use it; otherwise, render the default button
   if (renderTrigger) {
-    return renderTrigger(handleUpload, uploading);
+    return (
+      <>
+        {fileInput}
+        {renderTrigger(handleClick, uploading)}
+      </>
+    );
   }
 
   return (
     <div className="space-y-4">
+      {fileInput}
       <Button
         type="button"
-        onClick={handleUpload}
+        onClick={handleClick}
         disabled={uploading}
         variant="outline"
         className="w-full"
@@ -133,7 +184,7 @@ const CloudinaryUpload = ({
         ) : (
           <>
             <Upload className="mr-2 h-4 w-4" />
-            Upload Images (Max {maxFiles})
+            Choose Images (Max {maxFiles})
           </>
         )}
       </Button>
@@ -177,7 +228,6 @@ const CloudinaryUpload = ({
       )}
     </div>
   );
-
 };
 
 export default CloudinaryUpload;
