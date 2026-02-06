@@ -24,6 +24,7 @@ const Cart = () => {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(2000);
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [gstMessage, setGstMessage] = useState('GST not included');
+  const [storeName, setStoreName] = useState('the store');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const Cart = () => {
           setFreeShippingThreshold(data.freeShippingThreshold || 2000);
           setWhatsappNumber(data.whatsappNumber || '');
           setGstMessage(data.gstMessage || 'GST not included');
+          setStoreName(data.storeName || 'the store');
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
@@ -45,7 +47,7 @@ const Cart = () => {
     fetchSettings();
   }, []);
 
- const handleQuantityChange = (productId: string, newQuantity: number) => {
+  const handleQuantityChange = (productId: string, newQuantity: number) => {
     const item = cart.find(i => i.productId === productId);
     if (item && newQuantity > item.stockCount) {
       toast.error(`Only ${item.stockCount} items available in stock`);
@@ -75,33 +77,33 @@ const Cart = () => {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
 
-    await addDoc(collection(db, 'orders'), {
-  orderId,
-  items: cart,
-  subtotal,
-  courierCharges: courier,
-  courierBreakdown,
-  total,
-  createdAt: new Date(),
-  expiresAt,
-  status: 'pending',
-  whatsappSent: true,
-  invoiceGenerated: false,
-  invoiceGeneratedAt: null,
-  stockReduced: false,  // NEW FIELD
-  stockReducedAt: null,  // NEW FIELD
-  adminNotes: '',
-  lastUpdated: new Date()
-});
+      await addDoc(collection(db, 'orders'), {
+        orderId,
+        items: cart,
+        subtotal,
+        courierCharges: courier,
+        courierBreakdown,
+        total,
+        createdAt: new Date(),
+        expiresAt,
+        status: 'pending',
+        whatsappSent: true,
+        invoiceGenerated: false,
+        invoiceGeneratedAt: null,
+        stockReduced: false,  // NEW FIELD
+        stockReducedAt: null,  // NEW FIELD
+        adminNotes: '',
+        lastUpdated: new Date()
+      });
 
       const orderUrl = `${window.location.origin}/order/${orderId}`;
-      const message = `Hi! I'd like to place an order from Amilei:\n\nOrder ID: ${orderId}\nOrder Details: ${orderUrl}\n\nTotal: ${formatCurrency(total)} (${gstMessage})\n\nPlease confirm availability!`;
-      
+      const message = `Hi! I'd like to place an order from ${storeName}:\n\nOrder ID: ${orderId}\nOrder Details: ${orderUrl}\n\nTotal: ${formatCurrency(total)} (${gstMessage})\n\nPlease confirm availability!`;
+
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-      
+
       clearCart();
       window.dispatchEvent(new Event('cartUpdated'));
-      
+
       window.open(whatsappUrl, '_blank');
       navigate(`/order/${orderId}`);
     } catch (error) {
@@ -113,11 +115,11 @@ const Cart = () => {
   const { subtotal, courier, total, courierBreakdown } = getCartTotal(courierCharges, freeShippingThreshold);
 
   if (cart.length === 0) {
-   return (
-  <div className="min-h-screen bg-background flex flex-col">
-    <Header />
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
         <div className="container mx-auto px-4 py-16">
-         <Card className="max-w-md mx-auto text-center py-12 bg-white shadow-lg">
+          <Card className="max-w-md mx-auto text-center py-12 bg-white shadow-lg">
             <CardContent>
               <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
               <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
@@ -132,28 +134,28 @@ const Cart = () => {
     );
   }
 
- return (
-  <div className="min-h-screen bg-background flex flex-col">
-    <Header />
-      
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
+
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
-        
+
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {cart.map(item => {
               const itemPrice = item.salePrice || item.price;
               return (
-               <Card key={item.productId}>
+                <Card key={item.productId}>
                   <CardContent className="p-4 flex gap-4">
                     <img
                       src={item.selectedSizeImage || item.imageUrl}
                       alt={item.name}
                       className="w-24 h-24 object-cover rounded-md bg-secondary"
                     />
-                    
-                   <div className="flex-1">
+
+                    <div className="flex-1">
                       <h3 className="font-semibold mb-1">{item.name}</h3>
                       {item.selectedSize && (
                         <p className="text-sm text-muted-foreground mb-2">
@@ -161,20 +163,20 @@ const Cart = () => {
                         </p>
                       )}
                       <div className="flex items-center gap-2 mb-3">
-                          <span className="font-bold text-accent">{formatCurrency(itemPrice)}</span>
-                          {item.salePrice && (
-                            <span className="text-sm text-muted-foreground line-through">
-                              {formatCurrency(item.price)}
-                            </span>
-                          )}
-                        </div>
-                        {/* 🔧 Stock warning */}
-                        {item.stockCount < 10 && (
-                          <p className="text-xs text-orange-600 mb-2">
-                            Only {item.stockCount} left in stock
-                          </p>
+                        <span className="font-bold text-accent">{formatCurrency(itemPrice)}</span>
+                        {item.salePrice && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            {formatCurrency(item.price)}
+                          </span>
                         )}
-                      
+                      </div>
+                      {/* 🔧 Stock warning */}
+                      {item.stockCount < 10 && (
+                        <p className="text-xs text-orange-600 mb-2">
+                          Only {item.stockCount} left in stock
+                        </p>
+                      )}
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Button
@@ -193,7 +195,7 @@ const Cart = () => {
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
-                        
+
                         <Button
                           size="icon"
                           variant="ghost"
@@ -211,18 +213,18 @@ const Cart = () => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-           <Card className="sticky top-20 bg-white shadow-lg">
+            <Card className="sticky top-20 bg-white shadow-lg">
               <CardContent className="p-6">
                 <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-                
+
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-semibold">{formatCurrency(subtotal)}</span>
                   </div>
-                  
+
                   {/* 🔧 UPDATED COURIER DISPLAY */}
-                 <div className="space-y-2">
+                  <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Courier and Packaging Charges</span>
                       <span className="font-semibold">
@@ -233,7 +235,7 @@ const Cart = () => {
                         )}
                       </span>
                     </div>
-                    
+
                     {/* Show breakdown if there are charges */}
                     {courier > 0 && courierBreakdown.length > 0 && (
                       <div className="text-xs text-muted-foreground pl-4 space-y-1">
@@ -246,25 +248,25 @@ const Cart = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   {subtotal < freeShippingThreshold && (
                     <p className="text-sm text-muted-foreground">
                       Add {formatCurrency(freeShippingThreshold - subtotal)} more for free shipping
                     </p>
                   )}
-                  
+
                   <Separator />
-                  
+
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
                     <span className="text-accent">{formatCurrency(total)}</span>
                   </div>
-                  
+
                   <p className="text-sm text-muted-foreground text-center">
                     {gstMessage}
                   </p>
-                  
-                  <Button 
+
+                  <Button
                     onClick={handleCheckout}
                     className="w-full bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent"
                     size="lg"
@@ -276,7 +278,7 @@ const Cart = () => {
             </Card>
           </div>
         </div>
-    </main>
+      </main>
       <Footer />
     </div>
   );

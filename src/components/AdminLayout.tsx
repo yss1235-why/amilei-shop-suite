@@ -8,11 +8,14 @@ import { Loader2, LogOut, LayoutDashboard, Package, Settings, ShoppingCart, File
 import { toast } from 'sonner';
 import { useStore } from '@/contexts/StoreContext';
 
-// Get admin email from environment variable
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+// Get admin emails from environment variable (comma-separated)
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAIL || '')
+  .split(',')
+  .map((email: string) => email.trim().toLowerCase())
+  .filter((email: string) => email.length > 0);
 
-// Validate admin email is configured
-if (!ADMIN_EMAIL || ADMIN_EMAIL === 'your-admin-email@gmail.com') {
+// Validate admin emails are configured
+if (ADMIN_EMAILS.length === 0 || ADMIN_EMAILS.includes('your-admin-email@gmail.com')) {
   console.error('⚠️ ADMIN EMAIL NOT CONFIGURED! Please set VITE_ADMIN_EMAIL in your .env file');
 }
 
@@ -31,7 +34,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     const checkAdmin = async () => {
       console.log('🔍 Checking admin access...');
       console.log('User:', user?.email);
-      console.log('Admin Email:', ADMIN_EMAIL);
+      console.log('Admin Emails:', ADMIN_EMAILS);
 
       if (!loading) {
         if (!user) {
@@ -40,8 +43,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           return;
         }
 
-        if (user.email !== ADMIN_EMAIL) {
-          console.log('❌ Unauthorized: User email does not match admin email');
+        const userEmail = user.email?.toLowerCase() || '';
+        if (!ADMIN_EMAILS.includes(userEmail)) {
+          console.log('❌ Unauthorized: User email not in admin list');
           toast.error('Unauthorized access - not an admin');
           await signOut(auth);
           navigate('/admin');

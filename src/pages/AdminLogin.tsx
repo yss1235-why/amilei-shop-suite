@@ -9,8 +9,11 @@ import { Loader2, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { useStore } from '@/contexts/StoreContext';
 
-// 🔧 Get admin email from environment variable
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+// 🔧 Get admin emails from environment variable (comma-separated)
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAIL || '')
+  .split(',')
+  .map((email: string) => email.trim().toLowerCase())
+  .filter((email: string) => email.length > 0);
 
 const AdminLogin = () => {
   const [user, loading] = useAuthState(auth);
@@ -20,8 +23,9 @@ const AdminLogin = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       if (user) {
-        // Check if logged-in user is the admin
-        if (user.email !== ADMIN_EMAIL) {
+        // Check if logged-in user is in the admin list
+        const userEmail = user.email?.toLowerCase() || '';
+        if (!ADMIN_EMAILS.includes(userEmail)) {
           toast.error('You are not authorized as an admin');
           await auth.signOut();
           return;
@@ -39,8 +43,9 @@ const AdminLogin = () => {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
 
-      // Check if user is the admin
-      if (result.user.email !== ADMIN_EMAIL) {
+      // Check if user is in the admin list
+      const userEmail = result.user.email?.toLowerCase() || '';
+      if (!ADMIN_EMAILS.includes(userEmail)) {
         toast.error('You are not authorized as an admin');
         await auth.signOut();
         return;
