@@ -45,6 +45,9 @@ export interface StoreSettings {
   freeShippingThreshold: number;
   gstMessage?: string;
   logoUrl?: string;
+  // Contact information
+  storeAddress?: string;
+  storeEmail?: string;
   // Cloudinary settings
   cloudinaryCloudName?: string;
   cloudinaryUploadPreset?: string;

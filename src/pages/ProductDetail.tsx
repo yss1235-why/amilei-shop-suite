@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Minus, Plus, Loader2, ArrowLeft } from 'lucide-react';
 import { formatCurrency, addToCart } from '@/lib/cart';
 import { toast } from 'sonner';
+import ShareButton from '@/components/ShareButton';
 
 interface SizeOption {
   name: string;
@@ -164,7 +165,9 @@ const ProductDetail = () => {
 
           {/* Product Info */}
           <div className="flex flex-col">
-            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+            <div className="mb-4">
+              <h1 className="text-2xl sm:text-3xl font-bold">{product.name}</h1>
+            </div>
 
             <div className="flex items-center gap-3 mb-6">
               <span className="text-3xl font-bold text-accent">
@@ -262,6 +265,14 @@ const ProductDetail = () => {
           </div>
         </div>
       </main>
+
+      {/* Floating Share Button - Always visible */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="bg-blue-500 text-white rounded-full shadow-lg hover:shadow-xl hover:bg-blue-600 transition-all duration-300">
+          <ShareButton productName={product.name} />
+        </div>
+      </div>
+
       <Footer />
     </div>
   );

@@ -19,6 +19,8 @@ const AdminSettings = () => {
     courierCharges: '100',
     freeShippingThreshold: '2000',
     gstMessage: 'GST not included',
+    storeAddress: '',
+    storeEmail: '',
     cloudinaryCloudName: '',
     cloudinaryUploadPreset: ''
   });
@@ -35,6 +37,8 @@ const AdminSettings = () => {
             courierCharges: data.courierCharges?.toString() || '100',
             freeShippingThreshold: data.freeShippingThreshold?.toString() || '2000',
             gstMessage: data.gstMessage || 'GST not included',
+            storeAddress: data.storeAddress || '',
+            storeEmail: data.storeEmail || '',
             cloudinaryCloudName: data.cloudinaryCloudName || '',
             cloudinaryUploadPreset: data.cloudinaryUploadPreset || ''
           });
@@ -61,6 +65,8 @@ const AdminSettings = () => {
         courierCharges: parseInt(formData.courierCharges) || 100,
         freeShippingThreshold: parseInt(formData.freeShippingThreshold) || 2000,
         gstMessage: formData.gstMessage.trim(),
+        storeAddress: formData.storeAddress.trim(),
+        storeEmail: formData.storeEmail.trim(),
         cloudinaryCloudName: formData.cloudinaryCloudName.trim(),
         cloudinaryUploadPreset: formData.cloudinaryUploadPreset.trim()
       };
@@ -182,6 +188,41 @@ const AdminSettings = () => {
                   placeholder="GST not included"
                   rows={2}
                   required
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>Store contact details displayed in footer</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="storeAddress">Store Address</Label>
+                <Textarea
+                  id="storeAddress"
+                  value={formData.storeAddress}
+                  onChange={(e) => setFormData({ ...formData, storeAddress: e.target.value })}
+                  placeholder="123 Main Street, City, State - 123456"
+                  rows={3}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Physical store address (optional)
+                </p>
+              </div>
+
+
+              <div className="space-y-2">
+                <Label htmlFor="storeEmail">Store Email</Label>
+                <Input
+                  id="storeEmail"
+                  type="email"
+                  value={formData.storeEmail}
+                  onChange={(e) => setFormData({ ...formData, storeEmail: e.target.value })}
+                  placeholder="store@example.com"
                 />
               </div>
             </CardContent>
